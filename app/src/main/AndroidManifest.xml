@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tobeclean.tobeclean">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.hardware.location.gps"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.hardware.location.gps" />
 
     <application
         android:allowBackup="true"
@@ -21,8 +21,12 @@
         </activity>
 
         <meta-data
+            android:name="com.google.android.gms.vision"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC1xFuz1X6Y0EnhfuaCE8g2e94L0IIKwzg"/>
+            android:value="AIzaSyC4hAj8LmqsM-3n300DRSb-jERRN_PxMfQ" />
+
     </application>
 
 </manifest>

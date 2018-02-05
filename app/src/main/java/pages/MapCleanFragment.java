@@ -1,14 +1,28 @@
 package pages;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import helpers.PermissionHelper;
+import tobeclean.tobeclean.R;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * Created by tamir on 05/02/18.
@@ -16,8 +30,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapCleanFragment extends Fragment implements OnMapReadyCallback {
 
+    private String  locationProvider;
     private GoogleMap mMap;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    Context context;
     private OnMap mOnMap;
+    private PermissionHelper permissionHelper;
 
     public MapCleanFragment() {}
 
@@ -25,6 +44,7 @@ public class MapCleanFragment extends Fragment implements OnMapReadyCallback {
     public void onAttach(Context context) {
         super.onAttach(context);
         if(context instanceof OnMap){
+            this.context = context;
             mOnMap = (OnMap) context;
         }
     }//onAttach
@@ -37,6 +57,60 @@ public class MapCleanFragment extends Fragment implements OnMapReadyCallback {
         mOnMap = null;
     }//onDetach
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+
+        permissionHelper = new PermissionHelper(getActivity());
+        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        locationProvider = locationManager.getBestProvider(criteria,true);
+
+
+        locationListener = new LocationListener(){
+
+            @Override
+            public void onLocationChanged(Location location) {
+                double lat= location.getLatitude();
+                double lng = location.getLongitude();
+                Toast.makeText(getActivity(),"lat:"+lat+" long:"+lng, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        if(permissionHelper.getLocationPermission()) {
+            locationUpdateRequest();
+        }
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        Activity activity = getActivity();
+        SupportMapFragment mapFragment = (SupportMapFragment) (getActivity().getSupportFragmentManager())
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+
+
+    @SuppressLint("MissingPermission")
+    public void locationUpdateRequest(){
+        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

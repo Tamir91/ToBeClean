@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationListener locationListener;
     private PermissionHelper permissionHelper;
-    private MapCleanFragment mMapFragment;
+    private MapCleanFragment mMapFragment = new MapCleanFragment();
 
     boolean isPortScreen = true;
 
@@ -28,12 +28,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        permissionHelper = new PermissionHelper(this);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        //permissionHelper = new PermissionHelper(this);
+        //locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        if(permissionHelper.getLocationPermission()) {
-            locationUpdateRequest();
-        }
 
        if(isPortScreen){
             getSupportFragmentManager()
@@ -41,12 +38,10 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragmentContainer, mMapFragment)
                     .commit();
        }
+
     }
 
-    @SuppressLint("MissingPermission")
-    private void locationUpdateRequest(){
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -55,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         if(grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED)
         {
             if (permissionHelper.getLocationPermission()) {
-                locationUpdateRequest();
+                mMapFragment.locationUpdateRequest();
             }
         }
     }
