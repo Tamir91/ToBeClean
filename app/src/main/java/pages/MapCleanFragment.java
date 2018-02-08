@@ -2,6 +2,7 @@ package pages;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -100,9 +101,15 @@ public class MapCleanFragment extends Fragment implements OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         Activity activity = getActivity();
-        SupportMapFragment mapFragment = (SupportMapFragment) (getActivity().getSupportFragmentManager())
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+        SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
+        //why supportMapFragment is null?
+       /* SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
+
+                .findFragmentById(R.id.map);*/
+        supportMapFragment.getMapAsync(this);
     }
 
 
