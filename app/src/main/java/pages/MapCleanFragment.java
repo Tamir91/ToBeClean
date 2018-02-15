@@ -72,30 +72,9 @@ public class MapCleanFragment extends Fragment  {
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        initMap();
-    }
-
-    private void initMap(){
-        Log.d(TAG, "initMap: initializing map");
-        /*mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-
-        //mapFragment.getMapAsync();
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap map) {
-                    loadMap(map);
-                }
-            });
-        } else {
-            Toast.makeText(context, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
-        }*/
-    }
-
+    /*Loading Google map*/
     protected void loadMap(GoogleMap googleMap) {
+        Log.d(TAG, "initMap: initializing map");
         map = googleMap;
         if (map != null) {
             // Map is ready
@@ -106,13 +85,6 @@ public class MapCleanFragment extends Fragment  {
             Toast.makeText(context, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
         }
     }
-
-   /* @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Toast.makeText(getActivity(), "Map is Ready", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "onMapReady: map is ready");
-        map = googleMap;
-    }*/
 
     private boolean getLocationPermission() {
         int permissionSendMessage = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS);
@@ -177,7 +149,6 @@ public class MapCleanFragment extends Fragment  {
                     LOCATION_PERMISSION_REQUEST_CODE);
         }*/
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -246,11 +217,4 @@ public class MapCleanFragment extends Fragment  {
             }
         }*/
     }
-
-
-
-
-
-
-
 }
