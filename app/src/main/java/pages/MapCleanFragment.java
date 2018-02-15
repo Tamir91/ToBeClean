@@ -1,137 +1,256 @@
 package pages;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.FragmentManager;
+
+import android.Manifest;
 import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import helpers.PermissionHelper;
+import java.util.ArrayList;
+import java.util.List;
+
 import tobeclean.tobeclean.R;
 
-import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * Created by tamir on 05/02/18.
  */
 
-public class MapCleanFragment extends Fragment implements OnMapReadyCallback {
+public class MapCleanFragment extends Fragment  {
 
-    private String  locationProvider;
-    private GoogleMap mMap;
-    private LocationManager locationManager;
-    private LocationListener locationListener;
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+
+    private SupportMapFragment mapFragment;
+
     Context context;
-    private OnMap mOnMap;
-    private PermissionHelper permissionHelper;
+    View view;
 
-    public MapCleanFragment() {}
+    private static final String TAG = "MapActivity";
 
+    //vars
+    private Boolean mLocationPermissionsGranted = false;
+    private GoogleMap map;
+
+    @Nullable
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if(context instanceof OnMap){
-            this.context = context;
-            mOnMap = (OnMap) context;
-        }
-    }//onAttach
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.map_fragment_activity,container,false);
+        context = getActivity();
+        getLocationPermission();
 
+        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mOnMap = null;
-    }//onDetach
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-
-        permissionHelper = new PermissionHelper(getActivity());
-        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-        locationProvider = locationManager.getBestProvider(criteria,true);
-
-
-        locationListener = new LocationListener(){
-
-            @Override
-            public void onLocationChanged(Location location) {
-                double lat= location.getLatitude();
-                double lng = location.getLongitude();
-                Toast.makeText(getActivity(),"lat:"+lat+" long:"+lng, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        if(permissionHelper.getLocationPermission()) {
-            locationUpdateRequest();
+        //mapFragment.getMapAsync();
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap map) {
+                    loadMap(map);
+                }
+            });
+        } else {
+            Toast.makeText(context, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
         }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        Activity activity = getActivity();
-
-        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-
-        SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
-        //why supportMapFragment is null?
-       /* SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
-
-                .findFragmentById(R.id.map);*/
-        supportMapFragment.getMapAsync(this);
-    }
-
-
-
-    @SuppressLint("MissingPermission")
-    public void locationUpdateRequest(){
-        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+        return view;
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initMap();
+    }
+
+    private void initMap(){
+        Log.d(TAG, "initMap: initializing map");
+        /*mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+
+        //mapFragment.getMapAsync();
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap map) {
+                    loadMap(map);
+                }
+            });
+        } else {
+            Toast.makeText(context, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
+        }*/
+    }
+
+    protected void loadMap(GoogleMap googleMap) {
+        map = googleMap;
+        if (map != null) {
+            // Map is ready
+            Toast.makeText(context, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
+          /*  MapDemoActivityPermissionsDispatcher.getMyLocationWithPermissionCheck(this);
+            MapDemoActivityPermissionsDispatcher.startLocationUpdatesWithPermissionCheck(this);*/
+        } else {
+            Toast.makeText(context, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+   /* @Override
     public void onMapReady(GoogleMap googleMap) {
-        //TODO change standard code
-        mMap = googleMap;
+        Toast.makeText(getActivity(), "Map is Ready", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onMapReady: map is ready");
+        map = googleMap;
+    }*/
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    private boolean getLocationPermission() {
+        int permissionSendMessage = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS);
+
+        int contactpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS);
+
+        int writepermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        int callpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE);
+
+        int receivepermission = ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS);
+
+        int locationpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (locationpermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+        if (contactpermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
+        }
+        if (writepermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (permissionSendMessage != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_SMS);
+        }
+        if (receivepermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.RECEIVE_SMS);
+        }
+
+        if (callpermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CALL_PHONE);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 111);
+            return false;
+        }
+        return true;
+
+        /*Log.d(TAG, "getLocationPermission: getting location permissions");
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if (ContextCompat.checkSelfPermission(getContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionsGranted = true;
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        permissions,
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            }
+
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    permissions,
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }*/
     }
 
-    private interface OnMap{
-        //TODO change Name of interface
-        //ToDo build interface if it need
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == 111) {
+
+
+            if (grantResults.length > 0) {
+                for (int i = 0; i < permissions.length; i++) {
+
+
+                    if (permissions[i].equals(Manifest.permission.GET_ACCOUNTS)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            Log.e("msg", "accounts granted");
+
+                        }
+                    } else if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            Log.e("msg", "storage granted");
+
+                        }
+                    } else if (permissions[i].equals(Manifest.permission.CALL_PHONE)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            Log.e("msg", "call granted");
+
+                        }
+                    } else if (permissions[i].equals(Manifest.permission.RECEIVE_SMS)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            Log.e("msg", "sms granted");
+
+                        }
+                    } else if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            Log.e("msg", "location granted");
+
+                        }
+                    }
+
+
+                }
+
+            }
+            //initMap();
+
+
+        }
+        /*Log.d(TAG, "onRequestPermissionsResult: called.");
+        Toast.makeText(getActivity(), "onRequestPermissionsResult", Toast.LENGTH_SHORT).show();
+        mLocationPermissionsGranted = false;
+
+        switch(requestCode){
+            case LOCATION_PERMISSION_REQUEST_CODE:{
+                if(grantResults.length > 0){
+                    for(int i = 0; i < grantResults.length; i++){
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                            mLocationPermissionsGranted = false;
+                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                            return;
+                        }
+                    }
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    mLocationPermissionsGranted = true;
+                    //initialize our map
+                    initMap();
+                }
+            }
+        }*/
     }
+
+
+
+
+
+
+
 }
