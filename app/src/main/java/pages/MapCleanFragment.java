@@ -69,7 +69,6 @@ public class MapCleanFragment extends Fragment  {
         } else {
             Toast.makeText(context, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
         }
-
         return view;
     }
 
