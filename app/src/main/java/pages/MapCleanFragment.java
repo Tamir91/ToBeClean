@@ -4,6 +4,7 @@ package pages;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,9 +18,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+
+import com.google.android.gms.dynamic.IObjectWrapper;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +38,7 @@ import tobeclean.tobeclean.R;
  * Created by tamir on 05/02/18.
  */
 
-public class MapCleanFragment extends Fragment  {
+public class MapCleanFragment extends Fragment {
 
 
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -47,12 +54,12 @@ public class MapCleanFragment extends Fragment  {
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
-    private GoogleMap map;
+    private GoogleMap mMap;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.map_fragment_activity,container,false);
+        view = inflater.inflate(R.layout.map_fragment_activity, container, false);
         context = getActivity();
         getLocationPermission();
 
@@ -64,6 +71,8 @@ public class MapCleanFragment extends Fragment  {
                 @Override
                 public void onMapReady(GoogleMap map) {
                     loadMap(map);
+                    setMapMarker();
+
                 }
             });
         } else {
@@ -75,8 +84,8 @@ public class MapCleanFragment extends Fragment  {
     /*Loading Google map*/
     protected void loadMap(GoogleMap googleMap) {
         Log.d(TAG, "initMap: initializing map");
-        map = googleMap;
-        if (map != null) {
+        mMap = googleMap;
+        if (mMap != null) {
             // Map is ready
             Toast.makeText(context, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
           /*  MapDemoActivityPermissionsDispatcher.getMyLocationWithPermissionCheck(this);
@@ -86,105 +95,66 @@ public class MapCleanFragment extends Fragment  {
         }
     }
 
+    //Todo add permissions for SQLite writing and reading
+    /*This method getLocation permissions*/
     private boolean getLocationPermission() {
-        int permissionSendMessage = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS);
 
-        int contactpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS);
-
-        int writepermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        int callpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE);
-
-        int receivepermission = ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS);
-
-        int locationpermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        Log.d(TAG, "getLocationPermission: getting location permissions");
+        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
 
         List<String> listPermissionsNeeded = new ArrayList<>();
 
-        if (locationpermission != PackageManager.PERMISSION_GRANTED) {
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
-        if (contactpermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
-        }
-        if (writepermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (permissionSendMessage != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.READ_SMS);
-        }
-        if (receivepermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.RECEIVE_SMS);
-        }
-
-        if (callpermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.CALL_PHONE);
-        }
         if (!listPermissionsNeeded.isEmpty()) {
-            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 111);
+            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), LOCATION_PERMISSION_REQUEST_CODE);
             return false;
         }
         return true;
 
-        /*Log.d(TAG, "getLocationPermission: getting location permissions");
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
-
-        if (ContextCompat.checkSelfPermission(getContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            if (ContextCompat.checkSelfPermission(getContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionsGranted = true;
-            } else {
-                ActivityCompat.requestPermissions(getActivity(),
-                        permissions,
-                        LOCATION_PERMISSION_REQUEST_CODE);
-            }
-
-        } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        }*/
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        if (requestCode == 111) {
-
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
 
             if (grantResults.length > 0) {
                 for (int i = 0; i < permissions.length; i++) {
 
+                    switch (permissions[i]) {
+                        case Manifest.permission.GET_ACCOUNTS:
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                Log.e("msg", "accounts granted");
 
-                    if (permissions[i].equals(Manifest.permission.GET_ACCOUNTS)) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            Log.e("msg", "accounts granted");
+                            }
+                            break;
+                        case Manifest.permission.WRITE_EXTERNAL_STORAGE:
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                Log.e("msg", "storage granted");
 
-                        }
-                    } else if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            Log.e("msg", "storage granted");
+                            }
+                            break;
+                        case Manifest.permission.CALL_PHONE:
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                Log.e("msg", "call granted");
 
-                        }
-                    } else if (permissions[i].equals(Manifest.permission.CALL_PHONE)) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            Log.e("msg", "call granted");
+                            }
+                            break;
+                        case Manifest.permission.RECEIVE_SMS:
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                Log.e("msg", "sms granted");
 
-                        }
-                    } else if (permissions[i].equals(Manifest.permission.RECEIVE_SMS)) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            Log.e("msg", "sms granted");
+                            }
+                            break;
+                        case Manifest.permission.ACCESS_FINE_LOCATION:
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                Log.e("msg", "location granted");
 
-                        }
-                    } else if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            Log.e("msg", "location granted");
-
-                        }
+                            }
+                            break;
                     }
 
 
@@ -194,4 +164,25 @@ public class MapCleanFragment extends Fragment  {
 
         }
     }
+
+    private void setMapMarker() {
+        mMap.clear();
+
+        //Location location
+        final LatLng MELBOURNE = new LatLng(-37.813, 144.962);
+
+        //set marker
+        mMap.addMarker(new MarkerOptions()
+                .position(MELBOURNE)
+        );
+
+        //move camera to location
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(MELBOURNE));
+
+        //set zoom
+        mMap.setMaxZoomPreference(21.0f);
+        mMap.setMinZoomPreference(3.0f);
+
+    }
+
 }
