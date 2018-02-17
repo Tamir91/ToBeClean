@@ -195,5 +195,4 @@ public class MapCleanFragment extends Fragment  {
 
         }
     }
-
 }
