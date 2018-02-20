@@ -71,7 +71,7 @@ public class MapCleanFragment extends Fragment {
                 @Override
                 public void onMapReady(GoogleMap map) {
                     loadMap(map);
-                    setMapMarker();
+                    //setMapMarker(); //This line only for test
 
                 }
             });
@@ -184,5 +184,33 @@ public class MapCleanFragment extends Fragment {
         mMap.setMinZoomPreference(3.0f);
 
     }
+
+    /*
+    //This method animate camera.
+    private void animateMapCamera(Result result){
+        String addressType = result.getAddressComponentFirst().getTypeFirst();
+        Log.d("myTag", addressType);
+        switch (addressType) {
+            case "street_number":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
+                break;
+            case "route":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
+                break;
+            case "locality":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+                break;
+            case "administrative_area_level_2":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(9.0f));
+                break;
+            case "administrative_area_level_1":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(7.0f));
+                break;
+            case "country":
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(5.0f));
+                break;
+            default:
+        }
+    }*/
 
 }
