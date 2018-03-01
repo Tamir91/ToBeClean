@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
+
 import io.github.mthli.slice.Slice;
 import tobeclean.tobeclean.R;
 
@@ -20,9 +22,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
     private Context context;
+    ArrayList<String> listItems;
 
-    public RecyclerAdapter(Context context) {
+    public RecyclerAdapter(ArrayList<String> listItems, Context context) {
         this.context = context;
+        this.listItems = listItems;
     }
 
     @Override
@@ -58,6 +62,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         Slice slice = new Slice(holder.getFrame());
         slice.setElevation(2.0f);
 
+        //If view on the top
         if (viewType == VIEW_TYPE_TOP) {
             slice.setRadius(8.0f);
             slice.showLeftTopRect(false);
@@ -66,6 +71,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             slice.showLeftBottomRect(true);
             slice.showTopEdgeShadow(true);
             slice.showBottomEdgeShadow(false);
+            //If view in the bottom
         } else if (viewType == VIEW_TYPE_BOTTOM) {
             slice.setRadius(8.0f);
             slice.showLeftTopRect(true);
@@ -75,6 +81,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             slice.showTopEdgeShadow(false);
             slice.showBottomEdgeShadow(true);
         } else {
+            //If view in middle
             slice.setRadius(0.0f);
             slice.showTopEdgeShadow(false);
             slice.showBottomEdgeShadow(false);
