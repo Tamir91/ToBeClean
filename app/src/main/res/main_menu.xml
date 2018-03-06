@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app=""
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Item"
+            android:id="@+id/send_sms_action"
+            android:icon="@drawable/ic_action_send_sms"
+        app:showAsAction="ifRoom"
+        />
+    <item android:title="Item"
+        android:id="@+id/action_take_a_pic"
+        android:icon="@drawable/ic_action_take_a_pic"
+        app:showAsAction="ifRoom"
+        />
+</menu>

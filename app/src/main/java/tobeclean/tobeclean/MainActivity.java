@@ -1,27 +1,26 @@
 package tobeclean.tobeclean;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.support.annotation.NonNull;
 
-import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 
 import helpers.PermissionHelper;
 import pages.MapCleanFragment;
+import pages.PlacesFragment;
 //import pages.MapCleanFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,10 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListener;
     private PermissionHelper permissionHelper;
     private MapCleanFragment mMapFragment = new MapCleanFragment();
+    private PlacesFragment mPlacesFragment = new PlacesFragment();
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
+
+    Toolbar toolbar;
 
     boolean isPortScreen = true;
 
@@ -50,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
 
         if(isServiceOK()){
             init();
@@ -69,6 +74,33 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .add(R.id.fragmentContainer, mMapFragment)
                 .commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.my_places:
+                startPlacesFragment();
+                //Toast.makeText(this, "my_places_pressed", Toast.LENGTH_SHORT).show();
+                break;
+            case  R.id.add_to_my_places:
+                Toast.makeText(this, "add_to_my_places_pressed", Toast.LENGTH_SHORT).show();
+                break;
+            case  R.id.settings:
+                Toast.makeText(this, "settings-pressed", Toast.LENGTH_SHORT).show();
+                break;
+            case  R.id.exit_form_app:
+                Toast.makeText(this, "exit_form_app_pressed", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public  boolean isServiceOK(){
@@ -92,5 +124,10 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-
+    private void startPlacesFragment(){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, mPlacesFragment)
+                .commit();
+    }
 }
