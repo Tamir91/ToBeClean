@@ -6,13 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import io.github.mthli.slice.Slice;
+import model.PlaceItem;
 import tobeclean.tobeclean.R;
 
 /**
+ * This adapter class for Recycler view places
  * Created by tamir on 19/02/18.
  */
 
@@ -22,16 +26,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
     private Context context;
-    ArrayList<String> listItems;
+    ArrayList<PlaceItem> placeItems;
 
-    public RecyclerAdapter(ArrayList<String> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<PlaceItem> listItems, Context context) {
         this.context = context;
-        this.listItems = listItems;
+        this.placeItems = listItems;
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return placeItems.size();
     }
 
     @Override
@@ -58,6 +62,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
+        PlaceItem place = placeItems.get(position);
+        holder.setViews(place);
+
+        //Slice this 3-rd part library from GitHub. It do nice UI only.
         int viewType = getItemViewType(position);
         Slice slice = new Slice(holder.getFrame());
         slice.setElevation(2.0f);
@@ -89,16 +97,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     }
 
 
-    public class RecyclerHolder extends RecyclerView.ViewHolder {
+    class RecyclerHolder extends RecyclerView.ViewHolder {
         private FrameLayout frame;
+        TextView addressTextView;
+        ImageView imageView;
+
 
         public RecyclerHolder(View view) {
             super(view);
             this.frame = (FrameLayout) view.findViewById(R.id.frame);
+            addressTextView = view.findViewById(R.id.titlePlace);
+            imageView = view.findViewById(R.id.imgPlace);
+
+            //imageView.setOnClickListener();
         }
 
         public FrameLayout getFrame() {
             return frame;
+        }
+
+        public void setViews(PlaceItem item) {
+            this.addressTextView.setText(item.getPlaceAddress());
+            this.imageView.setImageResource(item.getImgID());
         }
     }
 }

@@ -21,6 +21,7 @@ allprojects {
         jcenter()
 
         maven { url 'https://jitpack.io' }//This repository for cardView from GitHub
+       // maven { url "https://jitpack.io" }//This for SearchView https://github.com/mancj/MaterialSearchBar
     }
 }
 

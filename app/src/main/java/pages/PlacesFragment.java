@@ -4,12 +4,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
 import adapters.RecyclerAdapter;
+import model.PlaceItem;
 import tobeclean.tobeclean.R;
 
 /**
@@ -17,42 +22,64 @@ import tobeclean.tobeclean.R;
  */
 
 public class PlacesFragment extends Fragment {
+    RecyclerView recyclerView;
+    RecyclerAdapter adapter;
+    ArrayList<PlaceItem> placeItems;
+
+    //Todo Change position with real position
+    int currentPosition;
+
+    public PlacesFragment() {
+    }
+
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRecycleView();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if (recyclerView == null) {
+
+            View view = inflater.inflate(R.layout.recycle_view_places, container, false);
+            if (view instanceof RecyclerView) {
+                recyclerView = (RecyclerView) view;
+                placeItems = getMockList();
+                adapter = new RecyclerAdapter(getMockList(), getContext());
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                        DividerItemDecoration.VERTICAL));
+
+                recyclerView.setAdapter(adapter);
+            }
+
+        } else {
+            adapter.notifyItemChanged(currentPosition);
+        }
+
+        return recyclerView;
     }
 
-    private void setRecycleView() {
-        //What need here getActivity? getContext?
-        RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerViewPlaces);
-        RecyclerAdapter adapter = new RecyclerAdapter(getMockList(), getContext());
+   public  void setImg(int currentPosition, int imgID){
+        this.currentPosition = currentPosition;
+        PlaceItem placeItem = placeItems.get(currentPosition);
+        placeItem.setImgID(imgID);
+   }
 
-        recyclerView.setHasFixedSize(true);
-        //Todo check parameters in Constructor StaggeredGridLayoutManager
-        StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL);
+    private ArrayList<PlaceItem> getMockList() {
 
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());//Todo upgrade to new ItemAnimator
+        ArrayList<PlaceItem> tasks = new ArrayList<>();
+        tasks.add(new PlaceItem("create app",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("buy google",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish homework",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project1",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project2",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project3",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project4",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project5",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project6",R.mipmap.ic_launcher_round));
+        tasks.add(new PlaceItem("finish project7",R.mipmap.ic_launcher_round));
 
-        recyclerView.setAdapter(adapter);
-    }
-
-    private ArrayList<String> getMockList(){
-
-
-        /*ListItemModel fox = new ListItemModel(R.mipmap.fox,"Fox","What does the fox say");
-        ListItemModel pig = new ListItemModel(R.mipmap.pig,"Pig","Pig saying oink oink");
-        ListItemModel frog = new ListItemModel(R.mipmap.frog,"Frog","Frog say ribbit");
-        ListItemModel wolf = new ListItemModel(R.mipmap.wolf,"Wolf","Also known as the timber wolf");*/
-        ArrayList<String> animalsList = new ArrayList<>();
-        animalsList.add("What does the fox say");
-        animalsList.add("Pig saying oink oink");
-        animalsList.add("Frog say rabbit");
-        animalsList.add("Also known as the timber wolf");
-
-        return  animalsList;
-
-
+        return tasks;
     }
 }
