@@ -2,15 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:icon="@android:drawable/ic_menu_mylocation"
         android:id="@+id/my_places"
         android:title="@string/my_places" />
     <item
+        android:icon="?android:attr/textSelectHandle"
         android:id="@+id/add_to_my_places"
         android:title="@string/add_to_my_places" />
     <item
+        android:icon="@android:drawable/ic_menu_preferences"
         android:id="@+id/settings"
         android:title="@string/settings" />
     <item
+        android:icon="?android:attr/actionModeCloseDrawable"
         android:id="@+id/exit_form_app"
         android:title="@string/exit" />
 </menu>
