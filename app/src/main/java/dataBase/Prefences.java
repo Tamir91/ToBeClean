@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 public class Prefences {
     private final static String TAG = "ToBeClean";
     private final static String LANGUAGE = "interfaceLanguage";
+    private static final String ENGLISH = "ENGLISH";
 
     private static SharedPreferences preferences;
 
@@ -34,7 +35,7 @@ public class Prefences {
 
     /*This function get language app from memory */
     public static String getLanguageApp(Context context, String data){
-        return getPreferences(context).getString(data, "english");
+        return getPreferences(context).getString(data, ENGLISH);
     }
 
 }
