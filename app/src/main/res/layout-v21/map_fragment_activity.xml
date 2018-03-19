@@ -32,6 +32,7 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/ivSearch"
             android:hint="@string/Hint_for_tvSearch"
+            android:imeOptions="actionSearch"
             android:textColor="@android:color/black"
             android:textSize="15sp" />
     </RelativeLayout>

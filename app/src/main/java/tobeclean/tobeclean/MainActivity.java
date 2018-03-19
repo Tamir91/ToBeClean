@@ -185,4 +185,6 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragmentContainer, mPlacesFragment)
                 .commit();
     }
+
+
 }
