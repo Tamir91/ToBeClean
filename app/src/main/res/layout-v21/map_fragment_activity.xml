@@ -22,7 +22,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
             android:src="@drawable/search_icon" />
 
         <EditText
@@ -30,8 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/ivSearch"
-            android:background="@null"
+            android:layout_toRightOf="@id/ivSearch"
             android:hint="@string/Hint_for_tvSearch"
             android:imeOptions="actionSearch"
             android:textColor="@android:color/black"
