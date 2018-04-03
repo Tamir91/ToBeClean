@@ -28,7 +28,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     public ArrayList<PlaceItem> placeItems;
     private Context context;
 
-    /**Constructor*/
+    /**
+     * Constructor
+     */
     public RecyclerAdapter(ArrayList<PlaceItem> listItems, Context context) {
         this.context = context;
         this.placeItems = listItems;
@@ -104,15 +106,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         private ImageView imageView;
 
 
+        //Constructor
         RecyclerHolder(View view) {
             super(view);
+
             this.frame = (FrameLayout) view.findViewById(R.id.frame);
-            addressTextView = view.findViewById(R.id.titlePlace);
-            imageView = view.findViewById(R.id.imgPlace);
+            this.addressTextView = view.findViewById(R.id.titlePlace);
+            this.imageView = view.findViewById(R.id.imgPlace);
 
             //imageView.setOnClickListener();
         }
 
+        /**
+         * @return FrameLayout
+         */
         FrameLayout getFrame() {
             return frame;
         }

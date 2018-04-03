@@ -21,15 +21,15 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
-import dataBase.Prefences;
-import helpers.PermissionHelper;
+import dataBase.Preferences;
+import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
 import pages.PlacesFragment;
 //import pages.MapCleanFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_FINE_LOCATION =1 ;
+    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private PermissionHelper permissionHelper;
+    private RuntimePermissionHelper permissionHelper;
     private MapCleanFragment mMapFragment = new MapCleanFragment();
     private PlacesFragment mPlacesFragment = new PlacesFragment();
 
@@ -61,20 +61,20 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
 
-        if(isServiceOK()){
+        if (isServiceOK()) {
             init();
         }
 
 
-        //permissionHelper = new PermissionHelper(this);
+        //permissionHelper = new RuntimePermissionHelper(this);
 
-       if(isPortScreen){
+        if (isPortScreen) {
 
-       }
+        }
 
     }
 
-    private void init(){
+    private void init() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.fragmentContainer, mMapFragment)
@@ -90,24 +90,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
 
             case R.id.my_places: {
                 startPlacesFragment();
                 break;
             }
 
-            case  R.id.add_to_my_places: {
+            case R.id.add_to_my_places: {
                 Toast.makeText(this, "add_to_my_places_pressed", Toast.LENGTH_SHORT).show();
                 break;
             }
 
-            case  R.id.settings: {
+            case R.id.settings: {
                 startLanguageDialog();
                 break;
             }
 
-            case  R.id.exit_form_app: {
+            case R.id.exit_form_app: {
                 Toast.makeText(this, "exit_form_app_pressed", Toast.LENGTH_SHORT).show();
                 break;
             }
@@ -143,13 +143,14 @@ public class MainActivity extends AppCompatActivity {
 
                 //English
                 case Dialog.BUTTON_POSITIVE: {
-                    Prefences.setLanguageApp(getApplicationContext(), ENGLISH);
+                    Preferences.setLanguageApp(getApplicationContext(), ENGLISH);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + ENGLISH, Toast.LENGTH_SHORT).show();
                     break;
                 }
+
                 //Hebrew
                 case Dialog.BUTTON_NEGATIVE: {
-                    Prefences.setLanguageApp(getApplicationContext(), HEBREW);
+                    Preferences.setLanguageApp(getApplicationContext(), HEBREW);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
                     break;
                 }
@@ -158,33 +159,37 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public  boolean isServiceOK(){
+    public boolean isServiceOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
 
-        if(available == ConnectionResult.SUCCESS){
+        if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
             Log.d(TAG, "isServicesOK: Google Play Services is working");
             return true;
-        }
-        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
             //an error occured but we can resolve it
             Log.d(TAG, "isServicesOK: an error occured but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
             dialog.show();
-        }else{
+        } else {
             Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
 
-    private void startPlacesFragment(){
+    private void startPlacesFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, mPlacesFragment)
                 .commit();
+
+        Log.d(TAG, "startPlacesFragment: in");
     }
+
+
+
 
 
 }
