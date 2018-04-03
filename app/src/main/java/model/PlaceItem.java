@@ -12,16 +12,25 @@ public class PlaceItem {
     private String placeAddress;
     private int imgID;
 
+    /**
+     * First Constructor
+     */
     public PlaceItem() {
         placeAddress = "without_address";
         imgID = R.mipmap.ic_launcher_round;
     }
 
+    /**
+     * Second Constructor
+     */
     public PlaceItem(String placeAddress, int imgID) {
         this.placeAddress = placeAddress;
         this.imgID = imgID;
     }
 
+    /**
+     * @return String
+     */
     public String getPlaceAddress() {
         return placeAddress;
     }
@@ -30,6 +39,9 @@ public class PlaceItem {
         this.placeAddress = placeAddress;
     }
 
+    /**
+     * @return int
+     */
     public int getImgID() {
         return imgID;
     }

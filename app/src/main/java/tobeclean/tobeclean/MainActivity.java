@@ -1,13 +1,17 @@
 package tobeclean.tobeclean;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -21,15 +25,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
-import dataBase.Prefences;
-import helpers.PermissionHelper;
+
+import dataBase.Preferences;
+import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
 import pages.PlacesFragment;
-//import pages.MapCleanFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_FINE_LOCATION =1 ;
+    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -39,17 +44,18 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private PermissionHelper permissionHelper;
+    private RuntimePermissionHelper permissionHelper;
     private MapCleanFragment mMapFragment = new MapCleanFragment();
     private PlacesFragment mPlacesFragment = new PlacesFragment();
 
     //vars
-    private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
+    public Boolean mLocationPermissionsGranted = false;
 
     Toolbar toolbar;
 
     boolean isPortScreen = true;
+    private RuntimePermissionHelper runtimePermissionHelper;
 
 
     @Override
@@ -61,20 +67,42 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
 
-        if(isServiceOK()){
-            init();
+        if (isServiceOK()) {
+
+            if (Build.VERSION.SDK_INT >= 23) {
+                runtimePermissionHelper = RuntimePermissionHelper.getInstance(this);
+
+                if (runtimePermissionHelper.isAllPermissionAvailable()) {
+
+                    init();
+                    // All permissions available. Go with the flow
+
+                } else {
+
+                    // Few permissions not granted. Ask for ungranted permissions
+                    runtimePermissionHelper.setActivity(this);
+                    runtimePermissionHelper.requestPermissionsIfDenied();
+
+                }
+
+            } else {
+
+                init();
+                // SDK below API 23. Do nothing just go with the flow.
+            }
         }
 
 
-        //permissionHelper = new PermissionHelper(this);
+        //permissionHelper = new RuntimePermissionHelper(this);
 
-       if(isPortScreen){
+        if (isPortScreen) {
 
-       }
+        }
 
     }
 
-    private void init(){
+
+    private void init() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.fragmentContainer, mMapFragment)
@@ -90,24 +118,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
 
             case R.id.my_places: {
                 startPlacesFragment();
                 break;
             }
 
-            case  R.id.add_to_my_places: {
+            case R.id.add_to_my_places: {
                 Toast.makeText(this, "add_to_my_places_pressed", Toast.LENGTH_SHORT).show();
                 break;
             }
 
-            case  R.id.settings: {
+            case R.id.settings: {
                 startLanguageDialog();
                 break;
             }
 
-            case  R.id.exit_form_app: {
+            case R.id.exit_form_app: {
                 Toast.makeText(this, "exit_form_app_pressed", Toast.LENGTH_SHORT).show();
                 break;
             }
@@ -143,13 +171,14 @@ public class MainActivity extends AppCompatActivity {
 
                 //English
                 case Dialog.BUTTON_POSITIVE: {
-                    Prefences.setLanguageApp(getApplicationContext(), ENGLISH);
+                    Preferences.setLanguageApp(getApplicationContext(), ENGLISH);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + ENGLISH, Toast.LENGTH_SHORT).show();
                     break;
                 }
+
                 //Hebrew
                 case Dialog.BUTTON_NEGATIVE: {
-                    Prefences.setLanguageApp(getApplicationContext(), HEBREW);
+                    Preferences.setLanguageApp(getApplicationContext(), HEBREW);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
                     break;
                 }
@@ -158,33 +187,50 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public  boolean isServiceOK(){
+    public boolean isServiceOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
 
-        if(available == ConnectionResult.SUCCESS){
+        if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
             Log.d(TAG, "isServicesOK: Google Play Services is working");
             return true;
-        }
-        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
             //an error occured but we can resolve it
             Log.d(TAG, "isServicesOK: an error occured but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
             dialog.show();
-        }else{
+        } else {
             Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
 
-    private void startPlacesFragment(){
+    private void startPlacesFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, mPlacesFragment)
                 .commit();
+
+        Log.d(TAG, "startPlacesFragment: in");
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: in");
 
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        for (int i : grantResults) {
+
+            if (i == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionsGranted = true;
+                Log.d(TAG, "onRequestPermissionsResult:  mLocationPermissionsGranted = true");
+            } else {
+                runtimePermissionHelper.requestPermissionsIfDenied(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+
+        }
+    }
 }

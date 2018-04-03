@@ -25,9 +25,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
+    public ArrayList<PlaceItem> placeItems;
     private Context context;
-    ArrayList<PlaceItem> placeItems;
 
+    /**
+     * Constructor
+     */
     public RecyclerAdapter(ArrayList<PlaceItem> listItems, Context context) {
         this.context = context;
         this.placeItems = listItems;
@@ -99,24 +102,29 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
         private FrameLayout frame;
-        TextView addressTextView;
-        ImageView imageView;
+        private TextView addressTextView;
+        private ImageView imageView;
 
 
-        public RecyclerHolder(View view) {
+        //Constructor
+        RecyclerHolder(View view) {
             super(view);
+
             this.frame = (FrameLayout) view.findViewById(R.id.frame);
-            addressTextView = view.findViewById(R.id.titlePlace);
-            imageView = view.findViewById(R.id.imgPlace);
+            this.addressTextView = view.findViewById(R.id.titlePlace);
+            this.imageView = view.findViewById(R.id.imgPlace);
 
             //imageView.setOnClickListener();
         }
 
-        public FrameLayout getFrame() {
+        /**
+         * @return FrameLayout
+         */
+        FrameLayout getFrame() {
             return frame;
         }
 
-        public void setViews(PlaceItem item) {
+        void setViews(PlaceItem item) {
             this.addressTextView.setText(item.getPlaceAddress());
             this.imageView.setImageResource(item.getImgID());
         }
