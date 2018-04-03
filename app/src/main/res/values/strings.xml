@@ -8,4 +8,7 @@
     <string name="exit">Exit</string>
     <string name="serach">search</string>
     <string name="Hint_for_tvSearch">Enter Address, City</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="permission_message">permission message</string>
 </resources>

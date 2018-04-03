@@ -26,7 +26,7 @@
             android:src="@drawable/search_icon" />
 
         <EditText
-            android:id="@+id/tvSearch"
+            android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
@@ -34,6 +34,7 @@
             android:background="@null"
             android:hint="@string/Hint_for_tvSearch"
             android:imeOptions="actionSearch"
+            android:maxLines="1"
             android:textColor="@android:color/black"
             android:textSize="15sp" />
     </RelativeLayout>

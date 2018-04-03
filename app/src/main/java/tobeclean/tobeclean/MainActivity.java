@@ -1,13 +1,17 @@
 package tobeclean.tobeclean;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -21,11 +25,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
+
 import dataBase.Preferences;
 import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
 import pages.PlacesFragment;
-//import pages.MapCleanFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,12 +49,13 @@ public class MainActivity extends AppCompatActivity {
     private PlacesFragment mPlacesFragment = new PlacesFragment();
 
     //vars
-    private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
+    public Boolean mLocationPermissionsGranted = false;
 
     Toolbar toolbar;
 
     boolean isPortScreen = true;
+    private RuntimePermissionHelper runtimePermissionHelper;
 
 
     @Override
@@ -62,7 +68,28 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         if (isServiceOK()) {
-            init();
+
+            if (Build.VERSION.SDK_INT >= 23) {
+                runtimePermissionHelper = RuntimePermissionHelper.getInstance(this);
+
+                if (runtimePermissionHelper.isAllPermissionAvailable()) {
+
+                    init();
+                    // All permissions available. Go with the flow
+
+                } else {
+
+                    // Few permissions not granted. Ask for ungranted permissions
+                    runtimePermissionHelper.setActivity(this);
+                    runtimePermissionHelper.requestPermissionsIfDenied();
+
+                }
+
+            } else {
+
+                init();
+                // SDK below API 23. Do nothing just go with the flow.
+            }
         }
 
 
@@ -73,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
     private void init() {
         getSupportFragmentManager()
@@ -188,8 +216,21 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "startPlacesFragment: in");
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: in");
 
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        for (int i : grantResults) {
 
+            if (i == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionsGranted = true;
+                Log.d(TAG, "onRequestPermissionsResult:  mLocationPermissionsGranted = true");
+            } else {
+                runtimePermissionHelper.requestPermissionsIfDenied(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
 
+        }
+    }
 }

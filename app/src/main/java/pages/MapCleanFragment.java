@@ -6,16 +6,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationProvider;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 
-import android.support.v4.content.ContextCompat;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,23 +21,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.google.android.gms.dynamic.IObjectWrapper;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.CustomGoogleMap;
-import tobeclean.tobeclean.MainActivity;
 import tobeclean.tobeclean.R;
 
 
@@ -66,7 +55,6 @@ public class MapCleanFragment extends Fragment {
     View view;
 
     //vars
-    private Boolean mLocationPermissionsGranted = false;
     private GoogleMap map;
 
     @Nullable
@@ -75,11 +63,18 @@ public class MapCleanFragment extends Fragment {
 
         view = inflater.inflate(R.layout.map_fragment_activity, container, false);
         context = getActivity();
-        getLocationPermission();
+        //getLocationPermission();
 
-        initViews();
+        return view;
+    }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         //mapFragment.getMapAsync();
+        initViews(view);
+
+
         if (mapFragment != null) {
 
             mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -89,31 +84,22 @@ public class MapCleanFragment extends Fragment {
 
                     map = gMap;
 
-                    if (mLocationPermissionsGranted) {
+                    Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
+                    //getDeviceLocation();
 
-                        Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
-                        //getDeviceLocation();
-
-                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED
-                                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
-
-                        map.setMyLocationEnabled(true);
-                        map.getUiSettings().setMyLocationButtonEnabled(false);
-
-                        initListener();
-
-                        Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
-
-                    }else
-                    {
-                        getLocationPermission();
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        return;
                     }
 
-                    //setMapMarker(); //This line only for test
+                    map.setMyLocationEnabled(true);
+                    map.getUiSettings().setMyLocationButtonEnabled(false);
+
+                    initListener();
+
+                    Toast.makeText(getContext(), "Test", Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -123,102 +109,28 @@ public class MapCleanFragment extends Fragment {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
 
         }
-        return view;
-    }
-
-
-
-    //Todo add permissions for SQLite writing and reading
-    /*This method getLocation permissions*/
-    private boolean getLocationPermission() {
-
-        Log.d(TAG, "getLocationPermission: getting location permissions");
-        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        List<String> listPermissionsNeeded = new ArrayList<>();
-
-        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-
-        if (!listPermissionsNeeded.isEmpty()) {
-            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), LOCATION_PERMISSION_REQUEST_CODE);
-            return false;
-        }
-        return true;
-
-    }
-
-    requestPer
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult: in");
-
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-
-            if (grantResults.length > 0) {
-                for (int i = 0; i < permissions.length; i++) {
-
-                    switch (permissions[i]) {
-                        case Manifest.permission.GET_ACCOUNTS:
-                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                                Log.e("msg", "accounts granted");
-
-                            }
-                            break;
-                        case Manifest.permission.WRITE_EXTERNAL_STORAGE:
-                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                                Log.e("msg", "storage granted");
-
-                            }
-                            break;
-                        case Manifest.permission.CALL_PHONE:
-                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                                Log.e("msg", "call granted");
-
-                            }
-                            break;
-                        case Manifest.permission.RECEIVE_SMS:
-                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                                Log.e("msg", "sms granted");
-
-                            }
-                            break;
-                        case Manifest.permission.ACCESS_FINE_LOCATION:
-                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                                Log.e("msg", "location granted");
-
-                            }
-                            break;
-                    }
-
-
-                }
-
-            }
-
-        }
     }
 
     /**
      * This function init views
      */
-    public void initViews() {
+    public void initViews(View view) {
+        Log.d(TAG, "initViews: in");
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        mSearchText = getActivity().findViewById(R.id.tvSearch);
+        mSearchText = view.findViewById(R.id.etSearch);
     }
 
     /**
      * This function init listeners for views
      */
     private void initListener() {
-        Log.d("TAG", "init: initializing");
+        Log.d(TAG, "init: initializing");
 
         /*This listener wait for action with Search field*/
         mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                Log.d(TAG, "initListener: onEditorAction: in");
 
                 if (actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == EditorInfo.IME_ACTION_DONE
@@ -226,10 +138,7 @@ public class MapCleanFragment extends Fragment {
                         || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
 
 
-
                     findLocation();
-                    //Test
-                    //setMapMarker(new LatLng(60f, 60f));
                 }
                 return false;
             }
@@ -241,7 +150,7 @@ public class MapCleanFragment extends Fragment {
      */
     private void findLocation() {
 
-        Log.d("TAG", "findLocation: geo locating");
+        Log.d(TAG, "findLocation: geo locating");
 
         String searchStr = mSearchText.getText().toString();
         Geocoder geocoder = new Geocoder(getContext());
@@ -250,13 +159,13 @@ public class MapCleanFragment extends Fragment {
         try {
             list = geocoder.getFromLocationName(searchStr, 1);
         } catch (IOException e) {
-            Log.e("TAG", "findLocation: IOException: " + e.getMessage());
+            Log.e(TAG, "findLocation: IOException: " + e.getMessage());
         }
 
         if (list.size() > 0) {
             Address address = list.get(0);
 
-            Log.d("TAG", "findLocation: found a location: " + address.toString());
+            Log.d(TAG, "findLocation: found a location: " + address.toString());
             Toast.makeText(getContext(), address.toString(), Toast.LENGTH_SHORT).show();
 
             //moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), );
@@ -264,7 +173,9 @@ public class MapCleanFragment extends Fragment {
         }
     }
 
+    /*set marker on map*/
     private void setMapMarker(LatLng latLng) {
+        Log.d(TAG, "setMapMarker: in");
         map.clear();
 
         //set marker
