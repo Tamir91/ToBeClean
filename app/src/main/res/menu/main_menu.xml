@@ -7,7 +7,7 @@
         android:icon="?android:attr/searchIcon"
         app:showAsAction="always"
         android:id="@+id/bMenuSearch"
-        android:title="@string/serach"
+        android:title="@string/search"
         tools:targetApi="lollipop" />
     <item
         android:icon="@android:drawable/ic_menu_mylocation"
