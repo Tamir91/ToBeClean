@@ -31,7 +31,7 @@ dependencies {
     //This SearchView from GitHub
     implementation 'com.github.mancj:MaterialSearchBar:0.7.6'
 
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
 
     //This card view from GitHub
