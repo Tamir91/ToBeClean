@@ -29,10 +29,10 @@ import com.google.android.gms.maps.GoogleMap;
 import storage.Preferences;
 import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
-import pages.PlacesFragment;
+import map.places.mvp.PlacesFragment;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
@@ -109,40 +109,8 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
 
-            case R.id.my_places: {
-                startPlacesFragment();
-                break;
-            }
-
-            case R.id.add_to_my_places: {
-                Toast.makeText(this, "add_to_my_places_pressed", Toast.LENGTH_SHORT).show();
-                break;
-            }
-
-            case R.id.settings: {
-                startLanguageDialog();
-                break;
-            }
-
-            case R.id.exit_form_app: {
-                Toast.makeText(this, "exit_form_app_pressed", Toast.LENGTH_SHORT).show();
-                break;
-            }
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     /*This method create dialog. Tamir 19/03/18*/
     protected void startLanguageDialog() {
