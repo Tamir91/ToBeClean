@@ -26,7 +26,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
 
-import dataBase.Preferences;
+import storage.Preferences;
 import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
 import pages.PlacesFragment;

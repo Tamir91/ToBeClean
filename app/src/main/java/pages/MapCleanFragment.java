@@ -43,11 +43,12 @@ import tobeclean.tobeclean.R;
  */
 
 public class MapCleanFragment extends Fragment {
+
+    private static final String TAG = MapCleanFragment.class.getSimpleName();
     public static final Float DEFAULT_ZOOM = 15f;
 
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final String TAG = MapCleanFragment.class.getSimpleName();
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private SupportMapFragment mapFragment;
