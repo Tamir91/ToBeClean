@@ -26,6 +26,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
 
+import butterknife.ButterKnife;
 import storage.Preferences;
 import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
@@ -38,12 +39,15 @@ public class MainActivity extends BaseActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
+
+
     private static final String ENGLISH = "ENGLISH";
     private static final String HEBREW = "HEBREW";
 
 
     private LocationManager locationManager;
     private LocationListener locationListener;
+
     private RuntimePermissionHelper permissionHelper;
     private MapCleanFragment mMapFragment = new MapCleanFragment();
     private PlacesFragment mPlacesFragment = new PlacesFragment();
@@ -62,6 +66,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
+
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         toolbar = findViewById(R.id.toolBar);

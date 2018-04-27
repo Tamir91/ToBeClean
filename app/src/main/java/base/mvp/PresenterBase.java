@@ -17,15 +17,15 @@ public abstract class PresenterBase<T extends MvpView> implements MvpPresenter<T
         view = null;
     }
 
+    @Override
+    public void destroy() {
+    }
+
     public T getView() {
         return view;
     }
 
     protected boolean isViewAttached() {
         return view != null;
-    }
-
-    @Override
-    public void destroy() {
     }
 }
