@@ -12,13 +12,9 @@ import android.location.LocationManager;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,11 +22,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
 
-import butterknife.ButterKnife;
-import storage.Preferences;
 import helpers.RuntimePermissionHelper;
 import pages.MapCleanFragment;
-import map.places.mvp.PlacesFragment;
+import places.mvp.PlacesFragment;
 
 
 public class MainActivity extends BaseActivity {
@@ -66,7 +60,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        //ButterKnife.bind(this);
 
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -146,14 +140,14 @@ public class MainActivity extends BaseActivity {
 
                 //English
                 case Dialog.BUTTON_POSITIVE: {
-                    Preferences.setLanguageApp(getApplicationContext(), ENGLISH);
+                    //Preferences.setLanguageApp( ENGLISH);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + ENGLISH, Toast.LENGTH_SHORT).show();
                     break;
                 }
 
                 //Hebrew
                 case Dialog.BUTTON_NEGATIVE: {
-                    Preferences.setLanguageApp(getApplicationContext(), HEBREW);
+                   // Preferences.setLanguageApp(getApplicationContext(), HEBREW);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
                     break;
                 }

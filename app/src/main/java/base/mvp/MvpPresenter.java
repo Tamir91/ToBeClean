@@ -9,4 +9,6 @@ public interface MvpPresenter<V extends MvpView> {
     void detachView();
 
     void destroy();
+
+    void onStop();//Unsubscribe from Observable
 }

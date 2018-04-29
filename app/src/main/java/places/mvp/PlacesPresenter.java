@@ -1,8 +1,8 @@
-package tobeclean.tobeclean;
+package places.mvp;
 
 import base.mvp.BasePresenter;
 
-public class MainPresenter extends BasePresenter {
+public class PlacesPresenter extends BasePresenter {
 
     @Override
     public void viewIsReady() {
@@ -13,6 +13,4 @@ public class MainPresenter extends BasePresenter {
     public void onStop() {
 
     }
-
-
 }

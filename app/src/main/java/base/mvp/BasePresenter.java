@@ -1,9 +1,11 @@
 package base.mvp;
 
+import app.App;
+
 /**
  * This abstract class for all Presenters in ToBeClean App.
  */
-public abstract class PresenterBase<T extends MvpView> implements MvpPresenter<T> {
+public abstract class BasePresenter<T extends MvpView> implements MvpPresenter<T> {
 
     private T view;
 
