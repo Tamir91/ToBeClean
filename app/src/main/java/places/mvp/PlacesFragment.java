@@ -15,10 +15,12 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import adapters.RecyclerAdapter;
+import app.App;
 import base.mvp.BaseFragment;
-import base.mvp.BasePresenter;
-import dagger.Binds;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import model.PlaceItem;
+import places.dagger.PlacesModule;
 import tobeclean.tobeclean.R;
 
 /**
@@ -26,13 +28,12 @@ import tobeclean.tobeclean.R;
  */
 
 public class PlacesFragment extends BaseFragment implements PlacesContract.View {
-    RecyclerView recyclerView;
+
     RecyclerAdapter adapter;
     ArrayList<PlaceItem> placeItems;
 
-   /* @BindView(R.id.recyclerViewPlaces)
-    protected  RecyclerView recyclerView;*/
-
+    @BindView(R.id.recyclerViewPlaces)
+    protected RecyclerView recyclerView;
 
     @Inject
     protected PlacesPresenter presenter;
@@ -58,12 +59,10 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         //adapter.setArrayList(list);
     }
 
-    /** */
-    public BasePresenter getPresenter() {
-        return presenter;
-    }
 
-    /**Close fragment*/
+    /**
+     * Close fragment
+     */
     @Override
     public void close() {
         //??onDestroy();
@@ -72,15 +71,34 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.recycle_view_places, container, false);
+        ButterKnife.bind(this, view);
+
+        //inject activity
+        App.getApp(getContext())
+                .getComponentsHolder()
+                .getActivityComponent(getClass(), new PlacesModule())
+                .inject(getActivity());
+
+        //attach view to presenter
+        presenter.attachView(this);
+
+        //view is ready to work
+        presenter.viewIsReady();
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
         if (recyclerView == null) {
 
-            View view = inflater.inflate(R.layout.recycle_view_places, container, false);
-            if (view instanceof RecyclerView) {
-                recyclerView = (RecyclerView) view;
-                placeItems = getMockList();
-                adapter = new RecyclerAdapter(getMockList(), getContext());
 
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            if (view instanceof RecyclerView) {
+                //recyclerView = (RecyclerView) view;
+                // placeItems = getMockList();
+                //adapter = new RecyclerAdapter(getMockList(), getContext());
+
+                //recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
                 recyclerView.setHasFixedSize(true);
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -94,8 +112,10 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
             adapter.notifyItemChanged(currentPosition);
         }
 
+
         return recyclerView;
     }
+
 
     public void setImg(int currentPosition, int imgID) {
         this.currentPosition = currentPosition;
