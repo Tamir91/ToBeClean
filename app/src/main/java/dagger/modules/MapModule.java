@@ -1,5 +1,6 @@
 package dagger.modules;
 
+import app.dagger.ActivityModule;
 import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.MapScope;
@@ -8,7 +9,7 @@ import map.mvp.MapPresenter;
 import places.mvp.PlacesFragment;
 
 @Module
-public class MapModule {
+public class MapModule implements ActivityModule{
 
     @MapScope
     @Provides

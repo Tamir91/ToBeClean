@@ -37,7 +37,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     RecyclerAdapter adapter;
 
     @Inject
-    protected PlacesPresenter presenter;
+    PlacesContract.Presenter presenter;
 
     //Todo Change position with real position
     int currentPosition;
@@ -52,21 +52,16 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         View view = inflater.inflate(R.layout.recycle_view_places, container, false);
         ButterKnife.bind(this, view);
 
-        //inject activity
-        /*App.getApp(getContext())
-                .getComponentsHolder()
-                .getActivityComponent(getClass(), new PlacesModule())
-                .inject(getActivity());*/
+        App.getApp(getContext())
+                .getPlacesComponent()
+                .inject(this);
 
-
-
-        // App.getPlacesComponent().injectFragment(this);
 
         //attach view to presenter
-        //presenter.attachView(this);
+        presenter.attachView(this);
 
         //view is ready to work
-        //presenter.viewIsReady();
+        presenter.viewIsReady();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -100,7 +95,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        presenter.detachView();
+        //presenter.detachView();
 
     }
 

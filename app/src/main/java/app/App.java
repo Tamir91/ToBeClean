@@ -6,6 +6,7 @@ import android.content.Context;
 import app.dagger.AppComponent;
 import app.dagger.AppModule;
 import app.dagger.DaggerAppComponent;
+import dagger.components.MapComponent;
 import dagger.components.PlacesComponent;
 
 /**
@@ -16,6 +17,7 @@ public class App extends Application {
 
     private static AppComponent appComponent;
     private static PlacesComponent placesComponent;
+    private static MapComponent mapComponent;
 
 
     /**
@@ -30,7 +32,9 @@ public class App extends Application {
         super.onCreate();
 
         appComponent = DaggerAppComponent.builder().appModule(new AppModule(getApplicationContext())).build();
-    }
+        placesComponent = appComponent.placesBuilder().build();
+        mapComponent = appComponent.mapBuilder().build();
+  }
 
     /**
      * @return PlacesComponent
@@ -41,5 +45,9 @@ public class App extends Application {
 
     public AppComponent getAppComponent() {
         return appComponent;
+    }
+
+    public static MapComponent getMapComponent() {
+        return mapComponent;
     }
 }

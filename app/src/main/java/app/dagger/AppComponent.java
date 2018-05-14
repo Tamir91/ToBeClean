@@ -15,5 +15,5 @@ public interface AppComponent {
 
     PlacesComponent.Builder placesBuilder();
 
-    MapComponent.Builder mapBuuilder();
+    MapComponent.Builder mapBuilder();
 }

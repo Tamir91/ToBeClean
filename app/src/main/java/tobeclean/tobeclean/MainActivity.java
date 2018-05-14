@@ -4,17 +4,16 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,7 +24,6 @@ import com.google.android.gms.maps.GoogleMap;
 import javax.inject.Inject;
 
 import app.App;
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import helpers.RuntimePermissionHelper;
 import map.mvp.MapFragment;
@@ -39,11 +37,6 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-
-    private static final String ENGLISH = "ENGLISH";
-    private static final String HEBREW = "HEBREW";
-
-
     private LocationManager locationManager;
     private LocationListener locationListener;
 
@@ -55,10 +48,8 @@ public class MainActivity extends BaseActivity {
     public Boolean mLocationPermissionsGranted = false;
 
 
-
     boolean isPortScreen = true;
     private RuntimePermissionHelper runtimePermissionHelper;
-
 
     @Inject
     Preferences preferences;
@@ -72,10 +63,11 @@ public class MainActivity extends BaseActivity {
         //DI Dagger
         App.getApp(this).getAppComponent().injectMain(this);
 
+        setSupportActionBar(toolbar);
+
+
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        setSupportActionBar(toolbar);
 
         if (isServiceOK()) {
 
@@ -111,57 +103,12 @@ public class MainActivity extends BaseActivity {
 
     }
 
-
     private void init() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.fragmentContainer, mMapFragment)
                 .commit();
     }
-
-
-    /*This method create dialog. Tamir 19/03/18*/
-    protected void startLanguageDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-
-        dialog.setTitle("CHANGE LANGUAGE");
-        setTitleColor(Color.BLUE);
-
-        dialog.setMessage("Choose your language");
-        //dialog.setIcon();
-        dialog.setPositiveButton(ENGLISH, dialogClickListener);
-        dialog.setNegativeButton(HEBREW, dialogClickListener);
-
-        dialog.create();
-        dialog.show();
-    }
-
-    /*This interface set up buttons in dialog. Tamir 19/03/18  */
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener()
-
-    {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
-
-            switch (i) {
-
-                //English
-                case Dialog.BUTTON_POSITIVE: {
-                    //Preferences.setLanguageApp( ENGLISH);
-                    Toast.makeText(MainActivity.this, "Language app was changed to " + ENGLISH, Toast.LENGTH_SHORT).show();
-                    break;
-                }
-
-                //Hebrew
-                case Dialog.BUTTON_NEGATIVE: {
-                    // Preferences.setLanguageApp(getApplicationContext(), HEBREW);
-                    Toast.makeText(MainActivity.this, "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
-                    break;
-                }
-
-            }
-        }
-    };
 
     public boolean isServiceOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
@@ -183,7 +130,6 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: in");
@@ -201,4 +147,6 @@ public class MainActivity extends BaseActivity {
 
         }
     }
+
+
 }
