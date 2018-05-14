@@ -1,4 +1,4 @@
-package pages;
+package map.mvp;
 
 
 import android.Manifest;
@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import tobeclean.tobeclean.R;
 
 
@@ -42,9 +44,9 @@ import tobeclean.tobeclean.R;
  * Created by tamir on 05/02/18.
  */
 
-public class MapCleanFragment extends Fragment {
+public class MapFragment extends Fragment {
 
-    private static final String TAG = MapCleanFragment.class.getSimpleName();
+    private static final String TAG = MapFragment.class.getSimpleName();
     public static final Float DEFAULT_ZOOM = 15f;
 
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -53,7 +55,8 @@ public class MapCleanFragment extends Fragment {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private SupportMapFragment mapFragment;
 
-    private EditText mSearchText;
+    @BindView(R.id.etSearch)
+    EditText mSearchText;
 
     Context context;
     View view;
@@ -68,6 +71,7 @@ public class MapCleanFragment extends Fragment {
 
         view = inflater.inflate(R.layout.map_fragment_activity, container, false);
         context = getActivity();
+        ButterKnife.bind(this, view);
         //getLocationPermission();
 
         return view;
@@ -121,8 +125,8 @@ public class MapCleanFragment extends Fragment {
      */
     public void initViews(View view) {
         Log.d(TAG, "initViews: in");
-        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        mSearchText = view.findViewById(R.id.etSearch);
+        //mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        //mSearchText = view.findViewById(R.id.etSearch); (Binding)
     }
 
     /**

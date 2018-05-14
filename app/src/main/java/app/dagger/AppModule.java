@@ -1,28 +1,33 @@
 package app.dagger;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.components.MapComponent;
+import dagger.components.PlacesComponent;
 import storage.Preferences;
 
-@Module
+@Module(subcomponents = {MapComponent.class, PlacesComponent.class})
 public class AppModule {
     private final Context context;
 
-    public AppModule(Context context) {
+    public AppModule(@NonNull Context context) {
         this.context = context;
     }
 
-    @AppScope
+    @Singleton
     @Provides
     Context provideContext() {
         return context;
     }
 
-    @AppScope
+    @Singleton
     @Provides
-    Preferences providePreferences(Context context) {
+    Preferences providePreferences() {
         return new Preferences(context);
     }
 }

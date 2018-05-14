@@ -1,8 +1,11 @@
 package base.dagger;
 
-public interface ActivityComponentBuilder<C extends ActivityComponent, M extends ActivityModule> {
+import app.dagger.ActivityModule;
+import app.dagger.AppComponent;
+
+public interface ActivityComponentBuilder<C extends AppComponent, M extends ActivityModule> {
 
     C build();
 
-    ActivityComponentBuilder<C, M> module(M module);
+    //ActivityComponentBuilder<C, M> module(M module);
 }

@@ -1,16 +1,19 @@
 package app.dagger;
 
-import app.ComponentsHolder;
-import dagger.Component;
-import storage.Preferences;
+import javax.inject.Singleton;
 
-@AppScope
+import dagger.Component;
+import dagger.components.MapComponent;
+import dagger.components.PlacesComponent;
+import tobeclean.tobeclean.MainActivity;
+
+@Singleton
 @Component(modules = {AppModule.class})
 public interface AppComponent {
 
-    void injectComponentsHolder(ComponentsHolder componentsHolder);
+    void injectMain(MainActivity mainActivity);
 
-    Preferences getPreferences();
+    PlacesComponent.Builder placesBuilder();
 
-    //TODO Complete the interface (module)
+    MapComponent.Builder mapBuuilder();
 }

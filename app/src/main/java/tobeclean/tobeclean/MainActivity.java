@@ -22,9 +22,14 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 
 
+import javax.inject.Inject;
+
+import app.App;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import helpers.RuntimePermissionHelper;
-import pages.MapCleanFragment;
-import places.mvp.PlacesFragment;
+import map.mvp.MapFragment;
+import storage.Preferences;
 
 
 public class MainActivity extends BaseActivity {
@@ -43,29 +48,33 @@ public class MainActivity extends BaseActivity {
     private LocationListener locationListener;
 
     private RuntimePermissionHelper permissionHelper;
-    private MapCleanFragment mMapFragment = new MapCleanFragment();
-    private PlacesFragment mPlacesFragment = new PlacesFragment();
+    private MapFragment mMapFragment = new MapFragment();
 
     //vars
     private GoogleMap mMap;
     public Boolean mLocationPermissionsGranted = false;
 
-    Toolbar toolbar;
+
 
     boolean isPortScreen = true;
     private RuntimePermissionHelper runtimePermissionHelper;
 
 
+    @Inject
+    Preferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //ButterKnife.bind(this);
+        ButterKnife.bind(this);
+
+        //DI Dagger
+        App.getApp(this).getAppComponent().injectMain(this);
 
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
 
         if (isServiceOK()) {
@@ -111,8 +120,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
     /*This method create dialog. Tamir 19/03/18*/
     protected void startLanguageDialog() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -147,7 +154,7 @@ public class MainActivity extends BaseActivity {
 
                 //Hebrew
                 case Dialog.BUTTON_NEGATIVE: {
-                   // Preferences.setLanguageApp(getApplicationContext(), HEBREW);
+                    // Preferences.setLanguageApp(getApplicationContext(), HEBREW);
                     Toast.makeText(MainActivity.this, "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
                     break;
                 }
@@ -176,14 +183,6 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
-    private void startPlacesFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, mPlacesFragment)
-                .commit();
-
-        Log.d(TAG, "startPlacesFragment: in");
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

@@ -1,4 +1,4 @@
-package base.dagger;
+package app.dagger;
 
 public interface ActivityModule {
 }

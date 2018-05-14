@@ -3,13 +3,20 @@ package app;
 import android.app.Application;
 import android.content.Context;
 
+import app.dagger.AppComponent;
+import app.dagger.AppModule;
+import app.dagger.DaggerAppComponent;
+import dagger.components.PlacesComponent;
+
 /**
  * This class help create a component for ToBeClean App
  */
 
 public class App extends Application {
 
-    private ComponentsHolder componentsHolder;
+    private static AppComponent appComponent;
+    private static PlacesComponent placesComponent;
+
 
     /**
      * @return App
@@ -18,14 +25,21 @@ public class App extends Application {
         return (App) context.getApplicationContext();
     }
 
-    public ComponentsHolder getComponentsHolder() {
-        return componentsHolder;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-        componentsHolder = new ComponentsHolder(this);
-        componentsHolder.init();
+
+        appComponent = DaggerAppComponent.builder().appModule(new AppModule(getApplicationContext())).build();
+    }
+
+    /**
+     * @return PlacesComponent
+     */
+    public PlacesComponent getPlacesComponent() {
+        return placesComponent;
+    }
+
+    public AppComponent getAppComponent() {
+        return appComponent;
     }
 }
