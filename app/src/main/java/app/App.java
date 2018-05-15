@@ -10,7 +10,7 @@ import dagger.components.MapComponent;
 import dagger.components.PlacesComponent;
 
 /**
- * This class help create a component for ToBeClean App
+ * This class help create a components for ToBeClean App
  */
 
 public class App extends Application {

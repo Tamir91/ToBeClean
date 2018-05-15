@@ -87,7 +87,6 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
      */
     @Override
     public void showData(ArrayList<PlaceItem> list) {
-        //recyclerView = null;
         Log.d(LOG, "showData::in");
 
         if (list.size() < 1) {
@@ -98,7 +97,6 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
@@ -106,10 +104,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
         recyclerView.setAdapter(adapter);
 
-
         adapter.notifyItemChanged(currentPosition);
-
-
     }
 
     /**
