@@ -6,6 +6,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import tobeclean.tobeclean.R;
 
 public class PlacesFragment extends BaseFragment implements PlacesContract.View {
 
+    private final String LOG = PlacesFragment.class.getSimpleName();
+
     ArrayList<PlaceItem> placeItems;
 
     @BindView(R.id.recyclerViewPlaces)
@@ -38,11 +41,14 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
     @Inject
     PlacesContract.Presenter presenter;
+    //TODO change a type in PlacesModule
 
     //Todo Change position with real position
     int currentPosition;
 
+
     public PlacesFragment() {
+        Log.d(LOG, "PlacesFragment was created");
     }
 
     @Nullable
@@ -61,42 +67,19 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         presenter.attachView(this);
 
         //view is ready to work
+
         presenter.viewIsReady();
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-
-        if (recyclerView == null) {
-
-
-            if (view instanceof RecyclerView) {
-                recyclerView = (RecyclerView) view;
-                placeItems = getMockList();
-                adapter = new RecyclerAdapter(getMockList(), getContext());
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-                recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                        DividerItemDecoration.VERTICAL));
-
-                recyclerView.setAdapter(adapter);
-            }
-
-        } else {
-            adapter.notifyItemChanged(currentPosition);
-        }
-
-
-        return recyclerView;
+        return view;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //presenter.detachView();
 
+        presenter.detachView();
+
+        presenter.destroy();
     }
 
     /**
@@ -104,7 +87,29 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
      */
     @Override
     public void showData(ArrayList<PlaceItem> list) {
-        //adapter.setArrayList(list);
+        //recyclerView = null;
+        Log.d(LOG, "showData::in");
+
+        if (list.size() < 1) {
+            adapter.addItems(getMockList());
+        } else {
+            adapter.addItems(list);
+        }
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                DividerItemDecoration.VERTICAL));
+
+        recyclerView.setAdapter(adapter);
+
+
+        adapter.notifyItemChanged(currentPosition);
+
+
     }
 
     /**

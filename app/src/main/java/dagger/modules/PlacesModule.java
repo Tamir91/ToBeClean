@@ -30,7 +30,7 @@ public class PlacesModule implements ActivityModule{
 
     @PlacesScope
     @Provides
-    public PlacesPresenter providePlacesPresenter() {
+    public PlacesContract.Presenter providePlacesPresenter() {
         return new PlacesPresenter();
     }
 
@@ -38,11 +38,5 @@ public class PlacesModule implements ActivityModule{
     @Provides
     RecyclerAdapter provideRecyclerAdapter(ArrayList<PlaceItem> items, Context context) {
         return new RecyclerAdapter(items, context);
-    }
-
-    @PlacesScope
-    @Provides
-    PlacesContract.Presenter proviedPlacesPresenter() {
-        return new  PlacesPresenter();
     }
 }

@@ -99,6 +99,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
     }
 
+    /**
+     * This method compare old list items with new list.
+     *
+     * @param items {@link ArrayList<PlaceItem>}
+     * @return boolean
+     */
+    public boolean addItems(ArrayList<PlaceItem> items) {
+        return placeItems.addAll(items);
+    }
+
+    /**
+     * This method clean list from all items*/
+    public void cleanListItems() {
+        placeItems = new ArrayList<>();
+    }
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
         private FrameLayout frame;
