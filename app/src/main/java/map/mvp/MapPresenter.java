@@ -1,40 +1,34 @@
 package map.mvp;
 
-import android.content.Context;
-import android.content.Intent;
+import android.util.Log;
 
-import base.mvp.MvpView;
+import base.mvp.BasePresenter;
 
-public class MapPresenter implements ContractMap.Presenter  {
+public class MapPresenter extends BasePresenter<MapContract.View> implements MapContract.Presenter {
 
-    public static void start(Context context) {
-        Intent starter = new Intent(context, MapPresenter.class);
-        //starter.putExtra();
-        context.startActivity(starter);
-    }
+    private final String TAG = MapPresenter.class.getSimpleName();
+
 
     @Override
-    public void attachView(MvpView mvpView) {
-
+    public void attachView(MapContract.View mvpView) {
+        super.attachView(mvpView);
+        Log.d(TAG, "attachView::" + mvpView.getClass().getSimpleName());
     }
+
 
     @Override
     public void viewIsReady() {
-
-    }
-
-    @Override
-    public void detachView() {
-
-    }
-
-    @Override
-    public void destroy() {
-
+        Log.d(TAG, "viewIsReady::in");
     }
 
     @Override
     public void onStop() {
+
+    }
+
+
+    @Override
+    public void getSearchingAddress(String address) {
 
     }
 }

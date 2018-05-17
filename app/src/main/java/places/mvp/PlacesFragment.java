@@ -29,7 +29,7 @@ import tobeclean.tobeclean.R;
 
 public class PlacesFragment extends BaseFragment implements PlacesContract.View {
 
-    private final String LOG = PlacesFragment.class.getSimpleName();
+    private final String TAG = PlacesFragment.class.getSimpleName();
 
     ArrayList<PlaceItem> placeItems;
 
@@ -48,7 +48,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
 
     public PlacesFragment() {
-        Log.d(LOG, "PlacesFragment was created");
+        Log.d(TAG, "PlacesFragment was created");
     }
 
     @Nullable
@@ -87,7 +87,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
      */
     @Override
     public void showData(ArrayList<PlaceItem> list) {
-        Log.d(LOG, "showData::in");
+        Log.d(TAG, "showData::in");
 
         if (list.size() < 1) {
             adapter.addItems(getMockList());

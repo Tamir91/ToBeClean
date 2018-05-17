@@ -34,7 +34,7 @@ public class App extends Application {
         appComponent = DaggerAppComponent.builder().appModule(new AppModule(getApplicationContext())).build();
         placesComponent = appComponent.placesBuilder().build();
         mapComponent = appComponent.mapBuilder().build();
-  }
+    }
 
     /**
      * @return PlacesComponent
@@ -47,7 +47,7 @@ public class App extends Application {
         return appComponent;
     }
 
-    public static MapComponent getMapComponent() {
+    public MapComponent getMapComponent() {
         return mapComponent;
     }
 }

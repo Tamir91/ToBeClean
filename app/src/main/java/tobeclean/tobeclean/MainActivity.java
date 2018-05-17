@@ -1,7 +1,6 @@
 package tobeclean.tobeclean;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Dialog;
 
 import android.content.pm.PackageManager;
@@ -12,13 +11,10 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.GoogleMap;
 
 
 import javax.inject.Inject;
@@ -44,7 +40,6 @@ public class MainActivity extends BaseActivity {
     private MapFragment mMapFragment = new MapFragment();
 
     //vars
-    private GoogleMap mMap;
     public Boolean mLocationPermissionsGranted = false;
 
 

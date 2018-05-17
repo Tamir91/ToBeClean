@@ -25,7 +25,7 @@
             android:layout_marginStart="10dp"
             android:src="@drawable/search_icon" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -39,9 +39,8 @@
             android:textSize="15sp" />
     </RelativeLayout>
 
-    <fragment
+    <com.google.android.gms.maps.MapView
         android:id="@+id/map"
-        class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

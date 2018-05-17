@@ -49,17 +49,20 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
 
     // dagger
-    compile 'com.google.dagger:dagger:2.11'
+    implementation 'com.google.dagger:dagger:2.11'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
 
     // butter knife
-    compile 'com.jakewharton:butterknife:8.8.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    //places API
+    implementation 'com.google.android.gms:play-services-places:15.0.1'
 
 
 }
 
-//This code for good working MaterialSearchBar
+//This code for correct working MaterialSearchBar
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested

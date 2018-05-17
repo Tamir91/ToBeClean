@@ -9,7 +9,7 @@ import model.PlaceItem;
 
 public class PlacesPresenter extends BasePresenter<PlacesContract.View> implements PlacesContract.Presenter {
 
-    private final String LOG = PlacesPresenter.class.getSimpleName();
+    private final String TAG = PlacesPresenter.class.getSimpleName();
 
    /* public void onCreate(PlacesContract.View view) {
         this.view = view;
@@ -18,12 +18,12 @@ public class PlacesPresenter extends BasePresenter<PlacesContract.View> implemen
     @Override
     public void attachView(PlacesContract.View mvpView) {
         super.attachView(mvpView);
-        Log.d(LOG, "attachView::" + mvpView.getClass().getSimpleName());
+        Log.d(TAG, "attachView::" + mvpView.getClass().getSimpleName());
     }
 
     @Override
     public void viewIsReady() {
-        Log.d(LOG, "viewIsReady::in");
+        Log.d(TAG, "viewIsReady::in");
         //Where from presenter get arrayList? Model?
         getView().showData(new ArrayList<PlaceItem>());
     }
