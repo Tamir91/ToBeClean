@@ -16,7 +16,7 @@
         android:background="@color/TBC"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:theme="@style/ToolBarTheme"></android.support.v7.widget.Toolbar>
+        app:theme="@style/ToolBarTheme"/>
 
     <LinearLayout
         android:id="@+id/fragmentContainer"
