@@ -2,6 +2,7 @@ package map.mvp;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -99,6 +101,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     MapView mapView;
 
     @Inject
+    Context context;
+
+    @Inject
     MapContract.Presenter presenter;
 
     @Inject
@@ -129,9 +134,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         //attach view to presenter
         presenter.attachView(this);
 
-        //view is ready to work
-        presenter.viewIsReady();
-
         //set adapter
         mSearchText.setAdapter(autocompleteAdapter);
 
@@ -156,6 +158,138 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "OnMapReady: map is ready");
+
+        map = googleMap;
+
+        Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
+        //getDeviceLocation();
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        //view is ready to work
+        presenter.viewIsReady();
+
+    }
+
+    /**
+     * This function find location by address in search field
+     */
+    @Override
+    public void findLocation(String location) {
+
+        Log.d(TAG, "findLocation: geo locating");
+
+        String searchStr = mSearchText.getText().toString();
+
+        List<Address> list = new ArrayList<>();
+        try {
+            list = geocoder.getFromLocationName(searchStr, 1);
+        } catch (IOException e) {
+            Log.e(TAG, "findLocation: IOException: " + e.getMessage());
+        }
+
+        if (list.size() > 0) {
+            Address address = list.get(0);
+
+            Log.d(TAG, "findLocation: found a location: " + address.toString());
+            Toast.makeText(getContext(), address.toString(), Toast.LENGTH_SHORT).show();
+
+            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM);
+            setMapMarker(new LatLng(address.getLatitude(), address.getLongitude()));
+        }
+    }
+
+    /**
+     * Move camera
+     *
+     * @param latLng {@link LatLng}
+     * @param zoom   {@link Float}
+     */
+    public void moveCamera(LatLng latLng, Float zoom) {
+        Log.d(TAG, "moveCamera: moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    }
+
+    @Override
+    public void showData(ArrayList<PlaceItem> list) {
+
+    }
+
+    @Override
+    public void setMyLocationVisibility(Boolean condition) {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        map.setMyLocationEnabled(condition);
+    }
+
+    @Override
+    public void setMyLocationButtonVisibility(Boolean condition) {
+        map.getUiSettings().setMyLocationButtonEnabled(condition);
+    }
+
+    /**
+     * Set marker on map
+     *
+     * @param latLng {@link LatLng}
+     */
+    private void setMapMarker(LatLng latLng) {
+        Log.d(TAG, "setMapMarker::in");
+        map.clear();
+
+        //set marker
+        marker = map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
+                .draggable(true)
+        );
+
+        //move camera to location
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        //set zoom
+        setZoomPreference(21.0f, 3.0f);
+    }
+
+    /**
+     * This function set max and min zoom in map.
+     *
+     * @param maxZoom {@link Float}
+     * @param minZoom {@link Float}
+     */
+    public void setZoomPreference(Float maxZoom, Float minZoom) {
+        if (map != null) {
+            map.setMaxZoomPreference(maxZoom);
+            map.setMinZoomPreference(minZoom);
+
+            Log.d(TAG, "setZoomPreference::zoom was set " + "max = " + maxZoom + " min = " + minZoom);
+        } else {
+            Log.e(TAG, "setZoomPreference::failed. map null");
+        }
+    }
+
+    public boolean showSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        return imm.showSoftInput(mSearchText, InputMethodManager.SHOW_IMPLICIT);
+
+    }
+
+    public boolean hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        return imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
     }
 
     private void initListener() {
@@ -191,60 +325,27 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            /*
-             Retrieve the place ID of the selected item from the Adapter.
-             The adapter stores each Place suggestion in a AutocompletePrediction from which we
-             read the place ID and title.
-              */
+
+            // Retrieve the place ID of the selected item from the Adapter.
+            // The adapter stores each Place suggestion in a AutocompletePrediction from which we
+            // read the place ID and title.
             final AutocompletePrediction item = autocompleteAdapter.getItem(position);
             final String placeId = item.getPlaceId();
             final CharSequence primaryText = item.getPrimaryText(null);
 
             Log.i(TAG, "Autocomplete item selected: " + primaryText);
 
-            /*
-             Issue a request to the Places Geo Data Client to retrieve a Place object with
-             additional details about the place.
-              */
+            // Issue a request to the Places Geo Data Client to retrieve a Place object with
+            // additional details about the place.
             Task<PlaceBufferResponse> placeResult = dataClient.getPlaceById(placeId);
             placeResult.addOnCompleteListener(mUpdatePlaceDetailsCallback);
 
-            Toast.makeText(getContext(), "Clicked: " + primaryText,
-                    Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Called getPlaceById to get Place details for " + placeId);
+
+            hideSoftKeyboard();
         }
     };
 
-
-
-
-    /**
-     * This function find location by address in search field
-     */
-    @Override
-    public void findLocation(String location) {
-
-        Log.d(TAG, "findLocation: geo locating");
-
-        String searchStr = mSearchText.getText().toString();
-
-        List<Address> list = new ArrayList<>();
-        try {
-            list = geocoder.getFromLocationName(searchStr, 1);
-        } catch (IOException e) {
-            Log.e(TAG, "findLocation: IOException: " + e.getMessage());
-        }
-
-        if (list.size() > 0) {
-            Address address = list.get(0);
-
-            Log.d(TAG, "findLocation: found a location: " + address.toString());
-            Toast.makeText(getContext(), address.toString(), Toast.LENGTH_SHORT).show();
-
-            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM);
-            setMapMarker(new LatLng(address.getLatitude(), address.getLongitude()));
-        }
-    }
 
     /**
      * Callback for results from a Places Geo Data Client query that shows the first place result in
@@ -297,50 +398,10 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     }
 
 
-
     @Override
     public void getSearchingAddress(String address) {
 
     }
-
-    /*set marker on map*/
-    private void setMapMarker(LatLng latLng) {
-        Log.d(TAG, "setMapMarker::in");
-        map.clear();
-
-        //set marker
-        marker = map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
-                .draggable(true)
-        );
-
-        //move camera to location
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        //set zoom
-        setZoomPreference(21.0f, 3.0f);
-    }
-
-    /**
-     * This function set max and min zoom in map.
-     */
-    public void setZoomPreference(Float maxZoom, Float minZoom) {
-        if (map != null) {
-            map.setMaxZoomPreference(maxZoom);
-            map.setMinZoomPreference(minZoom);
-
-            Log.d(TAG, "setZoomPreference: zoom was set");
-        } else {
-            Log.e(TAG, "setZoomPreference: failed. map null");
-        }
-    }
-
-   /* @OnTextChanged(value = R.id.etSearch, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    void provideTextFormSearch(Editable editable) {
-        Toast.makeText(getContext(), editable.toString(), Toast.LENGTH_SHORT).show();
-    }
-*/
 
 
     /*
@@ -371,52 +432,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         }
     }*/
 
-    public void moveCamera(LatLng latLng, Float zoom) {
-        Log.d(TAG, "moveCamera: moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-    }
-
-    @Override
-    public void showData(ArrayList<PlaceItem> list) {
-
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Log.d(TAG, "OnMapReady: map is ready");
-
-        map = googleMap;
-
-        Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
-        //getDeviceLocation();
-
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        //initListener();
-        setMyLocationVisibility(true);
-
-    }
-
-
-    @Override
-    public void setMyLocationVisibility(Boolean condition) {
-        map.setMyLocationEnabled(condition);
-    }
-
-    @Override
-    public void setMyLocationButton(Boolean condition) {
-        map.getUiSettings().setMyLocationButtonEnabled(condition);
-    }
-
-    private void hideSoftKeyboard(){
-        //TODO Hide input method
-        //setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

@@ -8,11 +8,14 @@ public interface MapContract {
     interface View extends MvpView {
         void setMyLocationVisibility(Boolean condition);
 
-        void setMyLocationButton(Boolean condition);
+        void setMyLocationButtonVisibility(Boolean condition);
 
         void findLocation(String location);
 
         void getSearchingAddress(String address);
+
+        void setZoomPreference(Float maxZoom, Float minZoom);
+
 
     }
 

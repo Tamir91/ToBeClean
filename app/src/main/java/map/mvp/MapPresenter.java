@@ -19,6 +19,9 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     @Override
     public void viewIsReady() {
         Log.d(TAG, "viewIsReady::in");
+
+        getView().setMyLocationVisibility(true);
+        getView().setMyLocationButtonVisibility(true);
     }
 
     @Override
