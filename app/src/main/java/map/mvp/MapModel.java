@@ -4,6 +4,5 @@ import javax.inject.Inject;
 
 public class MapModel {
 
-    @Inject
 
 }

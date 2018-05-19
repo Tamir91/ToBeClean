@@ -1,8 +1,10 @@
 package dagger.modules;
 
 import android.content.Context;
+import android.location.Geocoder;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -13,12 +15,15 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.MapScope;
 import map.mvp.MapContract;
-import map.mvp.MapFragment;
 import map.mvp.MapPresenter;
-import places.mvp.PlacesFragment;
 
 @Module
-public class MapModule implements ActivityModule{
+public class MapModule implements ActivityModule {
+
+    private final double lat2 = 33.24;
+    private final double lng2 = 35.51;
+    private final double lat1 = 29.30;
+    private final double lng1 = 34.15;
 
     @MapScope
     @Provides
@@ -28,33 +33,41 @@ public class MapModule implements ActivityModule{
 
     @MapScope
     @Provides
-    public GoogleApiClient provideApiClient(Context context){
-        return new GoogleApiClient
+    public Geocoder provideGeocoder(Context context) {
+        return new Geocoder(context);
+    }
+
+    @MapScope
+    @Provides
+    public GeoDataClient provideGeoDataClient(Context context) {
+       /* return new GoogleApiClient
                 .Builder(context)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
                 //.enableAutoManage(, context)
-                .build();
+                .build();*/
+        return Places.getGeoDataClient(context);
     }
 
     @MapScope
     @Provides
-    public LatLng provideLatLng(){
-        return new LatLng(0, 0);
+    public LatLng provideLatLng(double lat, double lng) {
+        return new LatLng(lat, lng);
     }
 
     @MapScope
     @Provides
-    public LatLngBounds providesBounds(LatLng latLng) {
-        return new LatLngBounds(new LatLng(), new LatLng());
+    public LatLngBounds providesBounds() {
+        return new LatLngBounds(provideLatLng(lat1, lng1), provideLatLng(lat2, lng2));
+        //return  new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     }
 
     @MapScope
     @Provides
     public PlaceAutocompleteAdapter providePlaceAutocompleteAdapter(Context context,
-                                                                    GoogleApiClient client,
-                                                                    LatLngBounds bounds){
-        return new  PlaceAutocompleteAdapter(context, client, bounds, null);
+                                                                    GeoDataClient client,
+                                                                    LatLngBounds bounds) {
+        return new PlaceAutocompleteAdapter(context, client, bounds, null);
     }
 
 
