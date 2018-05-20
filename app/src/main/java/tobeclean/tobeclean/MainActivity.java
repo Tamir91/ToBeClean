@@ -31,14 +31,10 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-
     //views
     private MapFragment mMapFragment = new MapFragment();
 
     //vars
-    public Boolean mLocationPermissionsGranted = false;
 
     private RuntimePermissionHelper runtimePermissionHelper;
 
@@ -55,8 +51,6 @@ public class MainActivity extends BaseActivity {
         App.getApp(this).getAppComponent().injectMain(this);
 
         setSupportActionBar(toolbar);
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         checkAllAppPermissions();
     }
@@ -125,7 +119,6 @@ public class MainActivity extends BaseActivity {
         for (int i : grantResults) {
 
             if (i == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionsGranted = true;
                 Log.d(TAG, "onRequestPermissionsResult::mLocationPermissionsGranted = true");
             } else {
                 runtimePermissionHelper.requestPermissionsIfDenied(Manifest.permission.ACCESS_FINE_LOCATION);

@@ -12,6 +12,10 @@ public interface MapContract {
 
         void findLocation();
 
+        void moveCameraToUserLocation(Float zoom);
+
+        void getLastKnownLocation();
+
         void setZoomPreference(Float maxZoom, Float minZoom);
 
         void updateLocation(String provider, long minTime, float minDistance);

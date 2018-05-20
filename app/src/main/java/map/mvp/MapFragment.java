@@ -39,6 +39,7 @@ import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -168,16 +169,20 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
         //getDeviceLocation();
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
+        if (isHasPermissions()) {
+            //view is ready to work
+            presenter.viewIsReady();
         }
+    }
 
-        //view is ready to work
-        presenter.viewIsReady();
-
+    @Override
+    @SuppressLint("MissingPermission")
+    public void getLastKnownLocation() {
+        Log.d(TAG, "getLastKnownLocation::in");
+        if (isHasPermissions()) {
+            currentLocation = locationManager.getLastKnownLocation("gps");
+            Log.d(TAG, "getLastKnownLocation::have permissions");
+        }
     }
 
     /**
@@ -188,10 +193,10 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         Log.d(TAG, "findLocation::geo locating");
 
         if (currentLocation != null) {
-            LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            moveCamera(latLng, DEFAULT_ZOOM);
-            setMapMarker(latLng);
+            setMapMarker(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+
         }
+
     }
 
     /**
@@ -204,11 +209,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     @SuppressLint("MissingPermission")
     @Override
     public void updateLocation(String provider, long minTime, float minDistance) {
-        if (isHasPermissions()) {
-            Log.e(TAG, "updateLocation::failed NOT HAVE PERMISSIONS");
+        if (isHasPermissions() && locationManager.isProviderEnabled(provider)) {
+            locationManager.requestLocationUpdates(provider, minTime, minDistance, locationListener);
             return;
         }
-        locationManager.requestLocationUpdates(provider, minTime, minDistance, locationListener);
+        Log.e(TAG, "updateLocation::failed NOT HAVE PERMISSIONS");
     }
 
     /**
@@ -222,21 +227,32 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
+    /**
+     * Move camera to current Location
+     *
+     * @param zoom {@link Float}
+     */
+    @Override
+    public void moveCameraToUserLocation(Float zoom) {
+        if (currentLocation != null) {
+            LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+
+            Log.d(TAG, "moveCameraToUserLocation::moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
+        }
+    }
+
     @Override
     public void showData(ArrayList<PlaceItem> list) {
 
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void setMyLocationVisibility(Boolean condition) {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
+        if(isHasPermissions()){
+            map.setMyLocationEnabled(condition);
         }
-
-        map.setMyLocationEnabled(condition);
     }
 
     @Override
@@ -260,12 +276,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
                 .draggable(true)
         );
-
-        //move camera to location
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        //set zoom
-        //setZoomPreference(21.0f, 3.0f);
     }
 
     /**
@@ -315,9 +325,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     public boolean isHasPermissions() {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
+                == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED;
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     @OnClick(R.id.fabFoundUserLocation)
@@ -332,8 +342,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         public void onLocationChanged(Location location) {
             currentLocation = location;
             setMapMarker(new LatLng(location.getLatitude(), location.getLongitude()));
-            Toast.makeText(context, "ponLocationChanged", Toast.LENGTH_SHORT).show();
-
         }
 
         @Override
@@ -343,13 +351,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
         @Override
         public void onProviderEnabled(String provider) {
-            Toast.makeText(context, "provider was enable", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "onLocationChanged::onProviderEnabled::" + provider);
 
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            Toast.makeText(context, "provider was disable", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "onLocationChanged::onProviderDisabled::" + provider);
         }
     };
 
@@ -426,6 +434,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
                 // Get the Place object from the buffer.
                 final Place place = places.get(0);
 
+                //user searching another spot on map
+                locationManager.removeUpdates(locationListener);
+
+                setMapMarker(place.getLatLng());
+                moveCamera(place.getLatLng(), DEFAULT_ZOOM);
                /* // Format details of the place for display and show it in a TextView.
                 mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
                         place.getId(), place.getAddress(), place.getPhoneNumber(),
@@ -462,35 +475,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     }
 
-    //This method animate camera.
-    private void animateMapCamera() {
-//        String addressType = result.getAddressComponentFirst().getTypeFirst();
-//        Log.d("myTag", addressType);
-//        switch (addressType) {
-//            case "street_number":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
-//                break;
-//            case "route":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
-//                break;
-//            case "locality":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
-//                break;
-//            case "administrative_area_level_2":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(9.0f));
-//                break;
-//            case "administrative_area_level_1":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(7.0f));
-//                break;
-//            case "country":
-//                map.animateCamera(CameraUpdateFactory.zoomTo(5.0f));
-//                break;
-//            default:
-//        }
-    }
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "onConnectionFailed::" + connectionResult.getErrorMessage());
     }
 }
+
