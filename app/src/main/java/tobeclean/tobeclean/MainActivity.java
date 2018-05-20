@@ -28,22 +28,18 @@ import storage.Preferences;
 
 public class MainActivity extends BaseActivity {
 
-    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
 
-    private RuntimePermissionHelper permissionHelper;
+    //views
     private MapFragment mMapFragment = new MapFragment();
 
     //vars
     public Boolean mLocationPermissionsGranted = false;
 
-
-    boolean isPortScreen = true;
     private RuntimePermissionHelper runtimePermissionHelper;
 
     @Inject
@@ -60,42 +56,9 @@ public class MainActivity extends BaseActivity {
 
         setSupportActionBar(toolbar);
 
-
-
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        if (isServiceOK()) {
-
-            if (Build.VERSION.SDK_INT >= 23) {
-                runtimePermissionHelper = RuntimePermissionHelper.getInstance(this);
-
-                if (runtimePermissionHelper.isAllPermissionAvailable()) {
-
-                    init();
-                    // All permissions available. Go with the flow
-
-                } else {
-
-                    // Few permissions not granted. Ask for ungranted permissions
-                    runtimePermissionHelper.setActivity(this);
-                    runtimePermissionHelper.requestPermissionsIfDenied();
-
-                }
-
-            } else {
-
-                init();
-                // SDK below API 23. Do nothing just go with the flow.
-            }
-        }
-
-
-        //permissionHelper = new RuntimePermissionHelper(this);
-
-        if (isPortScreen) {
-
-        }
-
+        checkAllAppPermissions();
     }
 
     private void init() {
@@ -125,6 +88,34 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
+    public void checkAllAppPermissions() {
+        if (isServiceOK()) {
+
+            if (Build.VERSION.SDK_INT >= 23) {
+
+                runtimePermissionHelper = RuntimePermissionHelper.getInstance(this);
+
+                if (runtimePermissionHelper.isAllPermissionAvailable()) {
+
+                    init();
+                    // All permissions available. Go with the flow
+
+                } else {
+
+                    // Few permissions not granted. Ask for ungranted permissions
+                    runtimePermissionHelper.setActivity(this);
+                    runtimePermissionHelper.requestPermissionsIfDenied();
+
+                }
+
+            } else {
+
+                init();
+                // SDK below API 23. Do nothing just go with the flow.
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: in");
@@ -135,13 +126,10 @@ public class MainActivity extends BaseActivity {
 
             if (i == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermissionsGranted = true;
-                Log.d(TAG, "onRequestPermissionsResult:  mLocationPermissionsGranted = true");
+                Log.d(TAG, "onRequestPermissionsResult::mLocationPermissionsGranted = true");
             } else {
                 runtimePermissionHelper.requestPermissionsIfDenied(Manifest.permission.ACCESS_FINE_LOCATION);
             }
-
         }
     }
-
-
 }

@@ -9,6 +9,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.components.MapComponent;
 import dagger.components.PlacesComponent;
+import helpers.RuntimePermissionHelper;
 import storage.Preferences;
 
 @Module(subcomponents = {MapComponent.class, PlacesComponent.class})

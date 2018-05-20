@@ -2,21 +2,23 @@ package map.mvp;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.content.res.Resources;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 
-import android.support.v4.app.Fragment;
-import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -24,31 +26,23 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -67,15 +61,10 @@ import adapters.PlaceAutocompleteAdapter;
 import app.App;
 import base.mvp.BaseFragment;
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnEditorAction;
-import butterknife.OnTextChanged;
 import model.PlaceItem;
 import tobeclean.tobeclean.R;
-
-import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -96,6 +85,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     @BindView(R.id.etSearch)
     AutoCompleteTextView mSearchText;
+
+    @BindView(R.id.fabFoundUserLocation)
+    FloatingActionButton bFoundUserLocation;
 
     @BindView(R.id.map)
     MapView mapView;
@@ -118,6 +110,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     //vars
     private GoogleMap map;
     private Marker marker;
+    public LocationManager locationManager;
+    private Location currentLocation;
+
 
     @Nullable
     @Override
@@ -140,12 +135,16 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         // Register a listener that receives callbacks when a suggestion has been selected
         mSearchText.setOnItemClickListener(mAutocompleteClickListener);
 
+        // locationManager = (LocationManager) context.getSyste
+
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         if (mapView != null) {
 
@@ -182,31 +181,34 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     }
 
     /**
-     * This function find location by address in search field
+     * This function find location and set marker on map
      */
     @Override
-    public void findLocation(String location) {
+    public void findLocation() {
+        Log.d(TAG, "findLocation::geo locating");
 
-        Log.d(TAG, "findLocation: geo locating");
-
-        String searchStr = mSearchText.getText().toString();
-
-        List<Address> list = new ArrayList<>();
-        try {
-            list = geocoder.getFromLocationName(searchStr, 1);
-        } catch (IOException e) {
-            Log.e(TAG, "findLocation: IOException: " + e.getMessage());
+        if (currentLocation != null) {
+            LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            moveCamera(latLng, DEFAULT_ZOOM);
+            setMapMarker(latLng);
         }
+    }
 
-        if (list.size() > 0) {
-            Address address = list.get(0);
-
-            Log.d(TAG, "findLocation: found a location: " + address.toString());
-            Toast.makeText(getContext(), address.toString(), Toast.LENGTH_SHORT).show();
-
-            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM);
-            setMapMarker(new LatLng(address.getLatitude(), address.getLongitude()));
+    /**
+     * This function request location updates
+     *
+     * @param provider    String
+     * @param minTime     long
+     * @param minDistance float
+     */
+    @SuppressLint("MissingPermission")
+    @Override
+    public void updateLocation(String provider, long minTime, float minDistance) {
+        if (isHasPermissions()) {
+            Log.e(TAG, "updateLocation::failed NOT HAVE PERMISSIONS");
+            return;
         }
+        locationManager.requestLocationUpdates(provider, minTime, minDistance, locationListener);
     }
 
     /**
@@ -215,7 +217,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      * @param latLng {@link LatLng}
      * @param zoom   {@link Float}
      */
-    public void moveCamera(LatLng latLng, Float zoom) {
+    public void moveCamera(@NonNull LatLng latLng, Float zoom) {
         Log.d(TAG, "moveCamera: moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
@@ -233,11 +235,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
                 != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
         map.setMyLocationEnabled(condition);
     }
 
     @Override
     public void setMyLocationButtonVisibility(Boolean condition) {
+
         map.getUiSettings().setMyLocationButtonEnabled(condition);
     }
 
@@ -246,7 +250,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      *
      * @param latLng {@link LatLng}
      */
-    private void setMapMarker(LatLng latLng) {
+    public void setMapMarker(LatLng latLng) {
         Log.d(TAG, "setMapMarker::in");
         map.clear();
 
@@ -261,7 +265,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         //set zoom
-        setZoomPreference(21.0f, 3.0f);
+        //setZoomPreference(21.0f, 3.0f);
     }
 
     /**
@@ -281,37 +285,95 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         }
     }
 
+    /**
+     * Show soft keyboard
+     *
+     * @return boolean
+     */
+    @Override
     public boolean showSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm.showSoftInput(mSearchText, InputMethodManager.SHOW_IMPLICIT);
 
     }
 
+    /**
+     * Hide soft keyword
+     *
+     * @return boolean
+     */
+    @Override
     public boolean hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
     }
 
-    private void initListener() {
-        Log.d(TAG, "init: initializing");
-
-        //This listener wait for action with Search field
-        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                Log.d(TAG, "initListener: onEditorAction: in");
-
-                if (actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
-
-                    findLocation("not in use");
-                }
-                return false;
-            }
-        });
+    /**
+     * Check Fine and Coarse permissions
+     *
+     * @return boolean
+     */
+    public boolean isHasPermissions() {
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED;
     }
+
+    @OnClick(R.id.fabFoundUserLocation)
+    public void onClickFoundUserLocation() {
+        Log.d(TAG, "onClickFoundUserLocation::FAB was clicked");
+
+        presenter.onFoundUserLocationPressed();
+    }
+
+    public LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            currentLocation = location;
+            setMapMarker(new LatLng(location.getLatitude(), location.getLongitude()));
+            Toast.makeText(context, "ponLocationChanged", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d(TAG, "onLocationChanged::onStatusChanged::" + provider + status);
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Toast.makeText(context, "provider was enable", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Toast.makeText(context, "provider was disable", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    //
+//    private void initListener() {
+    //        Log.d(TAG, "init: initializing");
+    //
+    //        //This listener wait for action with Search field
+    //        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+    //            @Override
+    //            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+    //                Log.d(TAG, "initListener: onEditorAction: in");
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH
+//                        || actionId == EditorInfo.IME_ACTION_DONE
+//                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
+//                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
+//
+//                    findLocation();
+//                }
+//                return false;
+//            }
+//        });
+//    }
+
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -353,11 +415,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     private OnCompleteListener<PlaceBufferResponse> mUpdatePlaceDetailsCallback
             = new OnCompleteListener<PlaceBufferResponse>() {
+
         @Override
         public void onComplete(Task<PlaceBufferResponse> task) {
 
             try {
                 PlaceBufferResponse places = task.getResult();
+
 
                 // Get the Place object from the buffer.
                 final Place place = places.get(0);
@@ -388,6 +452,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         }
     };
 
+
     private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
                                               CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
         Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
@@ -397,41 +462,32 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     }
 
-
-    @Override
-    public void getSearchingAddress(String address) {
-
-    }
-
-
-    /*
     //This method animate camera.
-    private void animateMapCamera(Result result){
-        String addressType = result.getAddressComponentFirst().getTypeFirst();
-        Log.d("myTag", addressType);
-        switch (addressType) {
-            case "street_number":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
-                break;
-            case "route":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
-                break;
-            case "locality":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
-                break;
-            case "administrative_area_level_2":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(9.0f));
-                break;
-            case "administrative_area_level_1":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(7.0f));
-                break;
-            case "country":
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(5.0f));
-                break;
-            default:
-        }
-    }*/
-
+    private void animateMapCamera() {
+//        String addressType = result.getAddressComponentFirst().getTypeFirst();
+//        Log.d("myTag", addressType);
+//        switch (addressType) {
+//            case "street_number":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
+//                break;
+//            case "route":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
+//                break;
+//            case "locality":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+//                break;
+//            case "administrative_area_level_2":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(9.0f));
+//                break;
+//            case "administrative_area_level_1":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(7.0f));
+//                break;
+//            case "country":
+//                map.animateCamera(CameraUpdateFactory.zoomTo(5.0f));
+//                break;
+//            default:
+//        }
+    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {

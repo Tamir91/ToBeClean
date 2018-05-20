@@ -39,21 +39,23 @@
 
     </RelativeLayout>
 
+
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fabFoundUserLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="36dp"
-        android:layout_marginEnd="28dp"
-        android:src="@drawable/icon_find_location" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/icon_find_location"
+        app:backgroundTint="@color/TBC" />
 
 </RelativeLayout>
 

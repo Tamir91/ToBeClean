@@ -10,17 +10,22 @@ public interface MapContract {
 
         void setMyLocationButtonVisibility(Boolean condition);
 
-        void findLocation(String location);
-
-        void getSearchingAddress(String address);
+        void findLocation();
 
         void setZoomPreference(Float maxZoom, Float minZoom);
+
+        void updateLocation(String provider, long minTime, float minDistance);
+
+        boolean hideSoftKeyboard();
+
+        boolean showSoftKeyboard();
 
 
     }
 
     interface Presenter extends MvpPresenter<View> {
-        void getSearchingAddress(String address);
+
+        void onFoundUserLocationPressed();
     }
 
 }

@@ -24,10 +24,14 @@ public class RuntimePermissionHelper {
     public static final int PERMISSION_REQUEST_CODE = 1;
     private Activity activity;
     public static final String PERMISSION_ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    public static final String PERMISSION_ACCESS_NETWORK_STATE = Manifest.permission.ACCESS_NETWORK_STATE;
+    public static final String PERMISSION_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    public static final String PERMISSION_INTERNET = Manifest.permission.INTERNET;
+
     private ArrayList<String> requiredPermissions;
     private ArrayList<String> ungrantedPermissions = new ArrayList<>();
 
-    public static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    //public static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
     public RuntimePermissionHelper(Activity activity) {
@@ -47,6 +51,9 @@ public class RuntimePermissionHelper {
     private void initPermissions() {
         requiredPermissions = new ArrayList<>();
         requiredPermissions.add(PERMISSION_ACCESS_FINE_LOCATION);
+        requiredPermissions.add(PERMISSION_ACCESS_NETWORK_STATE);
+        requiredPermissions.add(PERMISSION_COARSE_LOCATION);
+        requiredPermissions.add(PERMISSION_INTERNET);
         //Add all the required permission in the list
     }
 
