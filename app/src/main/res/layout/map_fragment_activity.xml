@@ -25,24 +25,38 @@
             android:layout_marginStart="10dp"
             android:src="@drawable/search_icon" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/ivSearch"
-            android:background="@null"
             android:hint="@string/Hint_for_tvSearch"
             android:imeOptions="actionSearch"
-            android:maxLines="1"
+            android:singleLine="true"
             android:textColor="@android:color/black"
             android:textSize="15sp" />
+
     </RelativeLayout>
 
-    <fragment
+
+    <com.google.android.gms.maps.MapView
         android:id="@+id/map"
-        class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabFoundUserLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/icon_find_location"
+        app:backgroundTint="@color/TBC" />
+
+
 </RelativeLayout>
 
