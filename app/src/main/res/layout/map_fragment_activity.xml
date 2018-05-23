@@ -57,6 +57,17 @@
         android:src="@drawable/icon_find_location"
         app:backgroundTint="@color/TBC" />
 
+    <FrameLayout
+        android:background="@drawable/white_border"
+        android:elevation="10dp"
+        android:id="@+id/place_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+
+    </FrameLayout>
+
 
 </RelativeLayout>
 

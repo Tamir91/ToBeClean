@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.mthli.slice.Slice;
-import model.PlaceItem;
+import model.RecyclingSpot;
 import tobeclean.tobeclean.R;
 
 /**
@@ -25,20 +25,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
-    public ArrayList<PlaceItem> placeItems;
+    public ArrayList<RecyclingSpot> recyclingSpots;
     private Context context;
 
     /**
      * Constructor
      */
-    public RecyclerAdapter(ArrayList<PlaceItem> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<RecyclingSpot> listItems, Context context) {
         this.context = context;
-        this.placeItems = listItems;
+        this.recyclingSpots = listItems;
     }
 
     @Override
     public int getItemCount() {
-        return placeItems.size();
+        return recyclingSpots.size();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
-        PlaceItem place = placeItems.get(position);
+        RecyclingSpot place = recyclingSpots.get(position);
         holder.setViews(place);
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
@@ -102,17 +102,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<PlaceItem>}
+     * @param items {@link ArrayList< RecyclingSpot >}
      * @return boolean
      */
-    public boolean addItems(ArrayList<PlaceItem> items) {
-        return placeItems.addAll(items);
+    public boolean addItems(ArrayList<RecyclingSpot> items) {
+        return recyclingSpots.addAll(items);
     }
 
     /**
      * This method clean list from all items*/
     public void cleanListItems() {
-        placeItems = new ArrayList<>();
+        recyclingSpots = new ArrayList<>();
     }
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
@@ -139,7 +139,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             return frame;
         }
 
-        void setViews(PlaceItem item) {
+        void setViews(RecyclingSpot item) {
             this.addressTextView.setText(item.getPlaceAddress());
             this.imageView.setImageResource(item.getImgID());
         }

@@ -2,11 +2,11 @@ package base.mvp;
 
 import java.util.ArrayList;
 
-import model.PlaceItem;
+import model.RecyclingSpot;
 
 public interface MvpView {
 
     void showError(String s);
 
-    void showData(ArrayList<PlaceItem> list);
+    void showData(ArrayList<RecyclingSpot> list);
 }

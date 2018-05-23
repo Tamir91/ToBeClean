@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import base.mvp.BasePresenter;
-import model.PlaceItem;
+import model.RecyclingSpot;
 
 public class PlacesPresenter extends BasePresenter<PlacesContract.View> implements PlacesContract.Presenter {
 
@@ -25,7 +25,7 @@ public class PlacesPresenter extends BasePresenter<PlacesContract.View> implemen
     public void viewIsReady() {
         Log.d(TAG, "viewIsReady::in");
         //Where from presenter get arrayList? Model?
-        getView().showData(new ArrayList<PlaceItem>());
+        getView().showData(new ArrayList<RecyclingSpot>());
     }
 
     @Override

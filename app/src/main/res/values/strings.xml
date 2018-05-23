@@ -12,5 +12,9 @@
     <string name="permission_message">permission message</string>
     <string name="place_details">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
     <string name="selected_place">Last Selected Place:</string>
+    <string name="glassrecyclingicon">GlassRecyclingIcon</string>
+    <string name="plasticsrecyclingicon">plasticsRecyclingIcon</string>
+    <string name="paperrecyclingicon">PaperRecyclingIcon</string>
+    <string name="boxrecyclingicon">boxRecyclingIcon</string>
 
 </resources>
