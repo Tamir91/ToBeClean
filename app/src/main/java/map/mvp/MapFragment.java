@@ -26,6 +26,7 @@ import android.support.v4.app.ActivityCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ import com.google.android.gms.maps.model.RuntimeRemoteException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -63,6 +65,7 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import model.RecyclingContainer;
 import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
@@ -81,6 +84,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int AUTO_COMP_REQ_CODE = 2;
+
+    private static final short GLASS = 0;
+    private static final short PLASTIC = 1;
+    private static final short PAPER = 2;
+    private static final short BOX = 3;
 
 
     @BindView(R.id.etSearch)
@@ -112,6 +120,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     private Marker marker;
     public LocationManager locationManager;
     private Location currentLocation;
+
+    Pair<View, RecyclingStation> stationPair;
 
 
     @Nullable
@@ -242,11 +252,39 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     @Override
     public void showData(List<RecyclingStation> list) {
-       LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        String stationAddress = list.get(0).getRecyclingContainers().get(0).getPlaceAddress();
 
         for (RecyclingStation item : list) {
-            View view =  mInflater.inflate(R.layout.place_frame, mapView, false);
+            View view = mInflater.inflate(R.layout.place_frame, mapView, false);
 
+            stationPair = new Pair<>(view, item);
+            castIconsInStation(item.getRecyclingContainers(), view);
+
+
+
+        }
+    }
+
+    public void castIconsInStation(ArrayList<RecyclingContainer> list, View view) {
+        for (RecyclingContainer container : list) {
+
+            if (container.getType() == GLASS) {
+                view.findViewById(R.id.imGlass).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == PLASTIC) {
+                view.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == PAPER) {
+
+                view.findViewById(R.id.imPaper).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == BOX) {
+                view.findViewById(R.id.imGlass).setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -271,7 +309,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     public void setMapMarker(LatLng latLng) {
         Log.d(TAG, "setMapMarker::in");
-        if (map != null){
+        if (map != null) {
             map.clear();
 
             //set marker

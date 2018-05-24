@@ -1,6 +1,8 @@
 package model;
 
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 
@@ -8,6 +10,7 @@ public class RecyclingStation {
 
     //In this app 6 containers the maximum in station. But this not real world.
     private static final int MAX_CONTAINERS_IN_STATION = 4;
+    LatLng latLng;
 
     private ArrayList<RecyclingContainer> recyclingContainers;
 
@@ -15,7 +18,9 @@ public class RecyclingStation {
     /**
      * Empty constructor.
      */
-    public RecyclingStation() { }
+    public RecyclingStation() {
+        recyclingContainers = new ArrayList<>();
+    }
 
 
     /**
@@ -71,4 +76,11 @@ public class RecyclingStation {
         return MAX_CONTAINERS_IN_STATION - getNumberContainersInStation();
     }
 
+    public LatLng getLatLng() {
+        return latLng;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
+    }
 }

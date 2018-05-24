@@ -27,15 +27,15 @@ public class RecyclingContainer {
      * @param placeAddress {@link String}
      * @param type int
      */
-    public RecyclingContainer(String placeAddress, int type) {
-        this.placeAddress = "";
-        imgID = R.mipmap.ic_launcher_round;
-    }
+//    public RecyclingContainer(String placeAddress, int type) {
+//        this.placeAddress = "";
+//        imgID = R.mipmap.ic_launcher_round;
+//    }
 
     /**
      * Second Constructor
      */
-    public RecyclingContainer(String placeAddress/*, int imgID*/, short type) {
+    public RecyclingContainer(String placeAddress/*, int imgID*/, int type) {
         this.placeAddress = placeAddress;
         this.imgID = R.mipmap.ic_launcher_round;
         this.type = type;
