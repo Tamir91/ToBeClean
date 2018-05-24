@@ -33,6 +33,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -52,7 +53,7 @@ import com.google.android.gms.maps.model.RuntimeRemoteException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -62,7 +63,7 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import model.RecyclingSpot;
+import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
 
@@ -209,7 +210,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             locationManager.requestLocationUpdates(provider, minTime, minDistance, locationListener);
             return;
         }
-        Log.e(TAG, "updateLocation::failed NOT HAVE PERMISSIONS");
+        Toast.makeText(context, "HAVE PROBLEM WITH YOUR LOCATION ", Toast.LENGTH_SHORT).show();
+        Log.e(TAG, "updateLocation::failed HAVEN'T PERMISSIONS");
     }
 
     /**
@@ -239,8 +241,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     }
 
     @Override
-    public void showData(ArrayList<RecyclingSpot> list) {
+    public void showData(List<RecyclingStation> list) {
+       LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+        for (RecyclingStation item : list) {
+            View view =  mInflater.inflate(R.layout.place_frame, mapView, false);
+
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -335,7 +342,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         //test
         //addBottleToFrame();
         //test
-        addCustomMarker();
+        //addCustomMarker();
 
         presenter.onFoundUserLocationPressed();
     }

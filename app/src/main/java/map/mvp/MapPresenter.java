@@ -2,7 +2,15 @@ package map.mvp;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import app.App;
 import base.mvp.BasePresenter;
+import model.RecyclingContainer;
+import model.RecyclingStation;
 
 public class MapPresenter extends BasePresenter<MapContract.View> implements MapContract.Presenter {
 
@@ -13,10 +21,22 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     private final long minUpdatingTime = 10000;
     private final float minDistance = 5;
 
+    @Inject
+    MapModel mapModel;
+
+    //vars
+    List<RecyclingStation> stationList;
+
+
     @Override
     public void attachView(MapContract.View mvpView) {
         super.attachView(mvpView);
         Log.d(TAG, "attachView::" + mvpView.getClass().getSimpleName());
+
+        //TODO inject mapModel with dagger
+        mapModel = new MapModel();
+        stationList = mapModel.getStationList();
+
     }
 
 
@@ -24,27 +44,27 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     public void viewIsReady() {
         Log.d(TAG, "viewIsReady::in");
 
-        //getView().setMyLocationVisibility(false);
         getView().setZoomPreference(21.0f, 3.0f);
         getView().getLastKnownLocation();
         getView().findLocation();
         getView().moveCameraToUserLocation(DEFAULT_ZOOM);
 
-        //getView().updateLocation(GPS_PROVIDER, minUpdatingTime, minDistance);
+        getView().updateLocation(GPS_PROVIDER, minUpdatingTime, minDistance);
+        getView().showData(stationList);//show station on the map
     }
 
     @Override
     public void onStop() {
-
     }
 
     @Override
     public void onFoundUserLocationPressed() {
         Log.d(TAG, "onFoundUserLocationPressed::in");
-//
-//        getView().hideSoftKeyboard();
-//        getView().updateLocation(GPS_PROVIDER, minUpdatingTime, minDistance);
-//        getView().findLocation();
-//        getView().moveCameraToUserLocation(DEFAULT_ZOOM);
+
+        getView().hideSoftKeyboard();
+        getView().updateLocation(GPS_PROVIDER, minUpdatingTime, minDistance);
+        getView().findLocation();
+        getView().moveCameraToUserLocation(DEFAULT_ZOOM);
     }
+
 }

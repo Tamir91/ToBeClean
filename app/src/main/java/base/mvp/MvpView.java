@@ -1,12 +1,12 @@
 package base.mvp;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import model.RecyclingSpot;
+import model.RecyclingStation;
 
 public interface MvpView {
 
     void showError(String s);
 
-    void showData(ArrayList<RecyclingSpot> list);
+    void showData(List<RecyclingStation> list);
 }

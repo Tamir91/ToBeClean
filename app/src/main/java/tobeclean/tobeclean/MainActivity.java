@@ -53,9 +53,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //DI Dagger
-        App.getApp(this).getAppComponent().injectMain(this);
-
         setSupportActionBar(toolbar);
 
         checkAllAppPermissions();

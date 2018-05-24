@@ -2,6 +2,7 @@ package tobeclean.tobeclean;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,8 +16,12 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 
+import javax.inject.Inject;
+
+import app.App;
 import butterknife.BindView;
 import places.mvp.PlacesFragment;
+import utils.AppViewModel;
 
 public class BaseActivity extends AppCompatActivity {
     private static final String TAG = BaseActivity.class.getSimpleName();
@@ -24,14 +29,23 @@ public class BaseActivity extends AppCompatActivity {
     private static final String ENGLISH = "ENGLISH";
     private static final String HEBREW = "HEBREW";
 
-
     @BindView(R.id.toolBar)
     Toolbar toolbar;
+
+    //Views
+    protected PlacesFragment placesFragment;
+    protected AppViewModel viewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate::in");
+
+        //DI Dagger
+        App.getApp(this).getAppComponent().injectMain(this);
+
+        //ViewModel
+        viewModel = ViewModelProviders.of(this).get(AppViewModel.class);
     }
 
     @Override
@@ -76,15 +90,20 @@ public class BaseActivity extends AppCompatActivity {
     private void startPlacesFragment() {
         Log.d(TAG, "startPlacesFragment::in");
 
+        if (placesFragment == null) {
+            placesFragment = new PlacesFragment();
+            Log.d(TAG, "startPlacesFragment::fragment was created");
+        }
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, new PlacesFragment())
+                .replace(R.id.fragmentContainer, placesFragment)
                 .commit();
     }
 
     /*This method create dialog. Tamir 19/03/18*/
     protected void startLanguageDialog() {
-    Log.d(TAG, "startLanguageDialog::in");
+        Log.d(TAG, "startLanguageDialog::in");
 
         new AlertDialog.Builder(this)
                 .setTitle("CHANGE LANGUAGE")
@@ -109,14 +128,14 @@ public class BaseActivity extends AppCompatActivity {
                 //English
                 case Dialog.BUTTON_POSITIVE: {
                     //Preferences.setLanguageApp( ENGLISH);
-                    Toast.makeText(getApplicationContext(), "Language app was changed to " + ENGLISH, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Arkadiy, What's up?"  /*+ ENGLISH*/, Toast.LENGTH_SHORT).show();
                     break;
                 }
 
                 //Hebrew
                 case Dialog.BUTTON_NEGATIVE: {
                     // Preferences.setLanguageApp(getApplicationContext(), HEBREW);
-                    Toast.makeText(getApplicationContext(), "Language app was changed to " + HEBREW, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Arkadiy, What's up?" /*+ HEBREW*/, Toast.LENGTH_SHORT).show();
                     break;
                 }
 

@@ -3,7 +3,6 @@ package dagger.modules;
 import android.content.Context;
 import android.location.Geocoder;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
@@ -15,6 +14,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.MapScope;
 import map.mvp.MapContract;
+import map.mvp.MapModel;
 import map.mvp.MapPresenter;
 
 @Module
@@ -40,12 +40,6 @@ public class MapModule implements ActivityModule {
     @MapScope
     @Provides
     public GeoDataClient provideGeoDataClient(Context context) {
-       /* return new GoogleApiClient
-                .Builder(context)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                //.enableAutoManage(, context)
-                .build();*/
         return Places.getGeoDataClient(context);
     }
 
@@ -55,11 +49,11 @@ public class MapModule implements ActivityModule {
         return new LatLng(lat, lng);
     }
 
+    //Israel bounds.
     @MapScope
     @Provides
     public LatLngBounds providesBounds() {
         return new LatLngBounds(provideLatLng(lat1, lng1), provideLatLng(lat2, lng2));
-        //return  new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     }
 
     @MapScope
@@ -70,10 +64,9 @@ public class MapModule implements ActivityModule {
         return new PlaceAutocompleteAdapter(context, client, bounds, null);
     }
 
-
-    /*@MapScope
+    @MapScope
     @Provides
-    public PlacesFragment providePlacesFragment() {
-        return new PlacesFragment();
-    }*/
+    public MapModel provideMapModel() {
+        return new MapModel();
+    }
 }
