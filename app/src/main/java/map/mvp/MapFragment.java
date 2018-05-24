@@ -252,21 +252,34 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     @Override
     public void showData(List<RecyclingStation> list) {
+        if (map == null) {
+            return;
+        }
+
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        String stationAddress = list.get(0).getRecyclingContainers().get(0).getPlaceAddress();
+
+        //How can I use address?
+        //String stationAddress = list.get(0).getRecyclingContainers().get(0).getPlaceAddress();
 
         for (RecyclingStation item : list) {
             View view = mInflater.inflate(R.layout.place_frame, mapView, false);
 
             stationPair = new Pair<>(view, item);
-            castIconsInStation(item.getRecyclingContainers(), view);
+            setUpIconsInStation(item.getRecyclingContainers(), view);
 
+            Bitmap bitmap = createBitmapFromView(view);
+
+            // adding a marker on map with image from  drawable
+            map.addMarker(new MarkerOptions()
+                    .position(item.getLatLng())
+                    .icon(BitmapDescriptorFactory
+                            .fromBitmap(bitmap)));
 
 
         }
     }
 
-    public void castIconsInStation(ArrayList<RecyclingContainer> list, View view) {
+    public void setUpIconsInStation(ArrayList<RecyclingContainer> list, View view) {
         for (RecyclingContainer container : list) {
 
             if (container.getType() == GLASS) {
@@ -385,48 +398,24 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         presenter.onFoundUserLocationPressed();
     }
 
-    public FrameLayout createFrame() {
-        return getActivity().findViewById(R.id.place_frame);
-    }
-
-    public void addBottleToFrame() {
-//        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        LinearLayout frameLayout = (LinearLayout) inflater.inflate( R.layout.place_frame, null );
-//
-//
-//
-//
-//        frameLayout.setDrawingCacheEnabled(true);
-//        frameLayout.buildDrawingCache();
-//
-//        Bitmap bm = frameLayout.getDrawingCache();
-//
-//
-//        //Todo bm = null!
-//        Marker myMarker = map.addMarker(new MarkerOptions()
-//                .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
-//                .icon(BitmapDescriptorFactory.fromBitmap(bm)));
-
-    }
-
     private void addCustomMarker() {
-        Log.d(TAG, "addCustomMarker()");
-        if (map == null) {
-            return;
-        }
-
-        // adding a marker on map with image from  drawable
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
-                .draggable(true)
-                .icon(BitmapDescriptorFactory
-                        .fromBitmap(getMarkerBitmapFromView())));
+//        Log.d(TAG, "addCustomMarker()");
+//        if (map == null) {
+//            return;
+//        }
+//
+//        // adding a marker on map with image from  drawable
+//        map.addMarker(new MarkerOptions()
+//                .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+//                .draggable(true)
+//                .icon(BitmapDescriptorFactory
+//                        .fromBitmap(getMarkerBitmapFromView())));
     }
 
     private Bitmap getMarkerBitmapFromView() {
 
-        View customMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.place_frame, null);
-        customMarkerView.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
+//        View customMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.place_frame, null);
+//        customMarkerView.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
 
 //        for (int count = 0; count < arrayID.length; ++count) {
 //            ImageView markerImageView = customMarkerView.findViewById(arrayID[count]);
@@ -445,19 +434,42 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 //        markerImageView4.setImageResource(resId4);
 
 
-        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
+//        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
+//
+//        customMarkerView.buildDrawingCache();
+//        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
+//                Bitmap.Config.ARGB_8888);
+//
+//        Canvas canvas = new Canvas(returnedBitmap);
+//        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+//        Drawable drawable = customMarkerView.getBackground();
+//        if (drawable != null)
+//            drawable.draw(canvas);
+//        customMarkerView.draw(canvas);
+        return null;
+    }
 
-        customMarkerView.buildDrawingCache();
-        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
+    /**
+     * This function create pic from view. From LinearLayout in our case.
+     *
+     * @return Bitmap
+     */
+    public Bitmap createBitmapFromView(View view) {
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+        view.buildDrawingCache();
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
                 Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(returnedBitmap);
         canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        Drawable drawable = customMarkerView.getBackground();
-        if (drawable != null)
+        Drawable drawable = view.getBackground();
+        if (drawable != null) {
             drawable.draw(canvas);
-        customMarkerView.draw(canvas);
+        }
+        view.draw(canvas);
         return returnedBitmap;
     }
 
@@ -567,16 +579,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             }
         }
     };
-
-
-    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
-                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
-        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-
-    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
