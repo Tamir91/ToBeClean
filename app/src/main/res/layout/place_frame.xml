@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/white_border"
+    android:elevation="10dp"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/imGlass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/glassrecyclingicon"
+        android:padding="3dp"
+        android:visibility="gone"
+        android:src="@drawable/icon_glass" />
+
+    <ImageView
+        android:id="@+id/imPlastic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/plasticsrecyclingicon"
+        android:padding="3dp"
+        android:src="@drawable/icon_plastic"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/imPaper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/paperrecyclingicon"
+        android:padding="3dp"
+        android:src="@drawable/icon_paper"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/imBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/boxrecyclingicon"
+        android:padding="3dp"
+        android:src="@drawable/icon_box"
+        android:visibility="gone" />
+
+</LinearLayout>

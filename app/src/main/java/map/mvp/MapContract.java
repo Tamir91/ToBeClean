@@ -1,7 +1,10 @@
 package map.mvp;
 
+import java.util.List;
+
 import base.mvp.MvpPresenter;
 import base.mvp.MvpView;
+import model.RecyclingStation;
 
 public interface MapContract {
 
@@ -30,6 +33,7 @@ public interface MapContract {
     interface Presenter extends MvpPresenter<View> {
 
         void onFoundUserLocationPressed();
+
     }
 
 }

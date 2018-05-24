@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Dialog;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
@@ -11,10 +12,15 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 import javax.inject.Inject;
@@ -46,9 +52,6 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        //DI Dagger
-        App.getApp(this).getAppComponent().injectMain(this);
 
         setSupportActionBar(toolbar);
 

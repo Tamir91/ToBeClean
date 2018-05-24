@@ -1,14 +1,9 @@
 package dagger.components;
 
-
-import javax.inject.Singleton;
-
-import adapters.RecyclerAdapter;
 import dagger.Subcomponent;
 import dagger.modules.PlacesModule;
 import dagger.scopes.PlacesScope;
 import places.mvp.PlacesFragment;
-import places.mvp.PlacesPresenter;
 
 @PlacesScope
 @Subcomponent(modules = {PlacesModule.class})

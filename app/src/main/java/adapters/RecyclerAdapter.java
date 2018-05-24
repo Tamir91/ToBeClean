@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.mthli.slice.Slice;
-import model.PlaceItem;
+import model.RecyclingContainer;
 import tobeclean.tobeclean.R;
 
 /**
@@ -25,20 +25,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
-    public ArrayList<PlaceItem> placeItems;
+    public ArrayList<RecyclingContainer> recyclingContainers;
     private Context context;
 
     /**
      * Constructor
      */
-    public RecyclerAdapter(ArrayList<PlaceItem> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<RecyclingContainer> listItems, Context context) {
         this.context = context;
-        this.placeItems = listItems;
+        this.recyclingContainers = listItems;
     }
 
     @Override
     public int getItemCount() {
-        return placeItems.size();
+        return recyclingContainers.size();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
-        PlaceItem place = placeItems.get(position);
+        RecyclingContainer place = recyclingContainers.get(position);
         holder.setViews(place);
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
@@ -102,17 +102,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<PlaceItem>}
+     * @param items {@link ArrayList<  RecyclingContainer  >}
      * @return boolean
      */
-    public boolean addItems(ArrayList<PlaceItem> items) {
-        return placeItems.addAll(items);
+    public boolean addItems(ArrayList<RecyclingContainer> items) {
+        return recyclingContainers.addAll(items);
     }
 
     /**
      * This method clean list from all items*/
     public void cleanListItems() {
-        placeItems = new ArrayList<>();
+        recyclingContainers = new ArrayList<>();
     }
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
@@ -139,7 +139,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             return frame;
         }
 
-        void setViews(PlaceItem item) {
+        void setViews(RecyclingContainer item) {
             this.addressTextView.setText(item.getPlaceAddress());
             this.imageView.setImageResource(item.getImgID());
         }

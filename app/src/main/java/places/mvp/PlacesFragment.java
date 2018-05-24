@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -20,7 +21,8 @@ import app.App;
 import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import model.PlaceItem;
+import model.RecyclingContainer;
+import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
 /**
@@ -31,7 +33,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
     private final String TAG = PlacesFragment.class.getSimpleName();
 
-    ArrayList<PlaceItem> placeItems;
+    ArrayList<RecyclingContainer> recyclingContainers;
 
     @BindView(R.id.recyclerViewPlaces)
     protected RecyclerView recyclerView;
@@ -83,16 +85,17 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     }
 
     /**
-     * @param list ArrayList<PlaceItem>
+     * This function not work for favorite places. TODO Need changes in param and data
+     * @param list ArrayList<RecyclingContainer>
      */
     @Override
-    public void showData(ArrayList<PlaceItem> list) {
+    public void showData(List<RecyclingStation> list) {
         Log.d(TAG, "showData::in");
 
         if (list.size() < 1) {
-            adapter.addItems(getMockList());
+            //adapter.addItems(list);
         } else {
-            adapter.addItems(list);
+           // adapter.addItems(list);
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -117,26 +120,11 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
     public void setImg(int currentPosition, int imgID) {
         this.currentPosition = currentPosition;
-        PlaceItem placeItem = placeItems.get(currentPosition);
-        placeItem.setImgID(imgID);
+        RecyclingContainer recyclingContainer = recyclingContainers.get(currentPosition);
+        recyclingContainer.setImgID(imgID);
     }
 
-    private ArrayList<PlaceItem> getMockList() {
 
-        ArrayList<PlaceItem> tasks = new ArrayList<>();
-        tasks.add(new PlaceItem("create app", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("buy google", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish homework", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project1", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project2", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project3", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project4", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project5", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project6", R.mipmap.ic_launcher_round));
-        tasks.add(new PlaceItem("finish project7", R.mipmap.ic_launcher_round));
-
-        return tasks;
-    }
 
 
 }

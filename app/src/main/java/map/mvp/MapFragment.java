@@ -7,7 +7,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 
 import android.content.res.Resources;
-import android.location.Address;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,15 +26,14 @@ import android.support.v4.app.ActivityCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,7 +42,6 @@ import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -52,7 +54,6 @@ import com.google.android.gms.maps.model.RuntimeRemoteException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +65,8 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import model.PlaceItem;
+import model.RecyclingContainer;
+import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
 
@@ -82,6 +84,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int AUTO_COMP_REQ_CODE = 2;
+
+    private static final short GLASS = 0;
+    private static final short PLASTIC = 1;
+    private static final short PAPER = 2;
+    private static final short BOX = 3;
 
 
     @BindView(R.id.etSearch)
@@ -114,6 +121,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     public LocationManager locationManager;
     private Location currentLocation;
 
+    Pair<View, RecyclingStation> stationPair;
+
 
     @Nullable
     @Override
@@ -135,8 +144,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
 
         // Register a listener that receives callbacks when a suggestion has been selected
         mSearchText.setOnItemClickListener(mAutocompleteClickListener);
-
-        // locationManager = (LocationManager) context.getSyste
 
         return view;
     }
@@ -213,7 +220,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             locationManager.requestLocationUpdates(provider, minTime, minDistance, locationListener);
             return;
         }
-        Log.e(TAG, "updateLocation::failed NOT HAVE PERMISSIONS");
+        Toast.makeText(context, "HAVE PROBLEM WITH YOUR LOCATION ", Toast.LENGTH_SHORT).show();
+        Log.e(TAG, "updateLocation::failed HAVEN'T PERMISSIONS");
     }
 
     /**
@@ -234,7 +242,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     @Override
     public void moveCameraToUserLocation(Float zoom) {
-        if (currentLocation != null) {
+        if (map != null && currentLocation != null) {
             LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
 
@@ -243,14 +251,60 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     }
 
     @Override
-    public void showData(ArrayList<PlaceItem> list) {
+    public void showData(List<RecyclingStation> list) {
+        if (map == null) {
+            return;
+        }
 
+        LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        //How can I use address?
+        //String stationAddress = list.get(0).getRecyclingContainers().get(0).getPlaceAddress();
+
+        for (RecyclingStation item : list) {
+            View view = mInflater.inflate(R.layout.place_frame, mapView, false);
+
+            stationPair = new Pair<>(view, item);
+            setUpIconsInStation(item.getRecyclingContainers(), view);
+
+            Bitmap bitmap = createBitmapFromView(view);
+
+            // adding a marker on map with image from  drawable
+            map.addMarker(new MarkerOptions()
+                    .position(item.getLatLng())
+                    .icon(BitmapDescriptorFactory
+                            .fromBitmap(bitmap)));
+
+
+        }
+    }
+
+    public void setUpIconsInStation(ArrayList<RecyclingContainer> list, View view) {
+        for (RecyclingContainer container : list) {
+
+            if (container.getType() == GLASS) {
+                view.findViewById(R.id.imGlass).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == PLASTIC) {
+                view.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == PAPER) {
+
+                view.findViewById(R.id.imPaper).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == BOX) {
+                view.findViewById(R.id.imGlass).setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void setMyLocationVisibility(Boolean condition) {
-        if(isHasPermissions()){
+        if (isHasPermissions()) {
             map.setMyLocationEnabled(condition);
         }
     }
@@ -268,14 +322,16 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     public void setMapMarker(LatLng latLng) {
         Log.d(TAG, "setMapMarker::in");
-        map.clear();
+        if (map != null) {
+            map.clear();
 
-        //set marker
-        marker = map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
-                .draggable(true)
-        );
+            //set marker
+            marker = map.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
+                    .draggable(true)
+            );
+        }
     }
 
     /**
@@ -334,8 +390,89 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     public void onClickFoundUserLocation() {
         Log.d(TAG, "onClickFoundUserLocation::FAB was clicked");
 
+        //test
+        //addBottleToFrame();
+        //test
+        //addCustomMarker();
+
         presenter.onFoundUserLocationPressed();
     }
+
+    private void addCustomMarker() {
+//        Log.d(TAG, "addCustomMarker()");
+//        if (map == null) {
+//            return;
+//        }
+//
+//        // adding a marker on map with image from  drawable
+//        map.addMarker(new MarkerOptions()
+//                .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
+//                .draggable(true)
+//                .icon(BitmapDescriptorFactory
+//                        .fromBitmap(getMarkerBitmapFromView())));
+    }
+
+    private Bitmap getMarkerBitmapFromView() {
+
+//        View customMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.place_frame, null);
+//        customMarkerView.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
+
+//        for (int count = 0; count < arrayID.length; ++count) {
+//            ImageView markerImageView = customMarkerView.findViewById(arrayID[count]);
+//            markerImageView.setImageResource(arraySources[count]);
+//        }
+
+
+//        ImageView markerImageView = customMarkerView.findViewById(R.id.imGlass);
+//        ImageView markerImageView2 = customMarkerView.findViewById(R.id.imPlastic);
+//        ImageView markerImageView3 = customMarkerView.findViewById(R.id.imPaper);
+//        ImageView markerImageView4 = customMarkerView.findViewById(R.id.imBox);
+//
+//        markerImageView.setImageResource(resId);
+//        markerImageView2.setImageResource(resId2);
+//        markerImageView3.setImageResource(resId3);
+//        markerImageView4.setImageResource(resId4);
+
+
+//        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
+//
+//        customMarkerView.buildDrawingCache();
+//        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
+//                Bitmap.Config.ARGB_8888);
+//
+//        Canvas canvas = new Canvas(returnedBitmap);
+//        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+//        Drawable drawable = customMarkerView.getBackground();
+//        if (drawable != null)
+//            drawable.draw(canvas);
+//        customMarkerView.draw(canvas);
+        return null;
+    }
+
+    /**
+     * This function create pic from view. From LinearLayout in our case.
+     *
+     * @return Bitmap
+     */
+    public Bitmap createBitmapFromView(View view) {
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+        view.buildDrawingCache();
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        Drawable drawable = view.getBackground();
+        if (drawable != null) {
+            drawable.draw(canvas);
+        }
+        view.draw(canvas);
+        return returnedBitmap;
+    }
+
 
     public LocationListener locationListener = new LocationListener() {
         @Override
@@ -360,28 +497,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             Log.d(TAG, "onLocationChanged::onProviderDisabled::" + provider);
         }
     };
-
-    //
-//    private void initListener() {
-    //        Log.d(TAG, "init: initializing");
-    //
-    //        //This listener wait for action with Search field
-    //        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-    //            @Override
-    //            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-    //                Log.d(TAG, "initListener: onEditorAction: in");
-//                if (actionId == EditorInfo.IME_ACTION_SEARCH
-//                        || actionId == EditorInfo.IME_ACTION_DONE
-//                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-//                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
-//
-//                    findLocation();
-//                }
-//                return false;
-//            }
-//        });
-//    }
-
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -464,16 +579,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             }
         }
     };
-
-
-    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
-                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
-        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-
-    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
