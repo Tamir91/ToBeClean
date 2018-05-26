@@ -94,6 +94,7 @@ public class BaseActivity extends AppCompatActivity {
             placesFragment = new PlacesFragment();
             Log.d(TAG, "startPlacesFragment::fragment was created");
         }
+        
 
         getSupportFragmentManager()
                 .beginTransaction()
