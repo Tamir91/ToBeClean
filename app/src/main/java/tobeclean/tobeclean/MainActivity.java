@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -37,7 +38,6 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
-
     //views
     private MapFragment mMapFragment = new MapFragment();
 
@@ -55,6 +55,7 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
+
 
         checkAllAppPermissions();
     }
