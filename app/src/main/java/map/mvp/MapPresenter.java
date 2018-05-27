@@ -2,15 +2,12 @@ package map.mvp;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import app.App;
 import base.mvp.BasePresenter;
 import model.RecyclingContainer;
-import model.RecyclingStation;
 
 public class MapPresenter extends BasePresenter<MapContract.View> implements MapContract.Presenter {
 
@@ -25,7 +22,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     MapModel mapModel;
 
     //vars
-    List<RecyclingStation> stationList;
+    List<RecyclingContainer> stationList;
 
 
     @Override

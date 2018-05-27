@@ -2,9 +2,6 @@ package places.mvp;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import base.mvp.BasePresenter;
 import model.RecyclingContainer;
 

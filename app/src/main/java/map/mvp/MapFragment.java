@@ -6,34 +6,30 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -54,6 +50,7 @@ import com.google.android.gms.maps.model.RuntimeRemoteException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +64,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import model.RecyclingContainer;
 import model.RecyclingStation;
+import storage.Preferences;
 import tobeclean.tobeclean.R;
 
 
@@ -74,7 +72,7 @@ import tobeclean.tobeclean.R;
  * Created by tamir on 05/02/18.
  */
 
-public class MapFragment extends BaseFragment implements MapContract.View, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
+public class MapFragment extends BaseFragment implements MapContract.View, GoogleMap.OnMarkerClickListener, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = MapFragment.class.getSimpleName();
     public static final Float DEFAULT_ZOOM = 15f;
@@ -118,10 +116,10 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     //vars
     private GoogleMap map;
     private Marker marker;
-    public LocationManager locationManager;
+    private LocationManager locationManager;
     private Location currentLocation;
 
-    Pair<View, RecyclingStation> stationPair;
+    ArrayList<RecyclingStation> stations;
 
 
     @Nullable
@@ -170,11 +168,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d(TAG, "OnMapReady: map is ready");
-
         map = googleMap;
-
-        Log.d(TAG, "OnMapReady: LocationPermissionsGranted = true");
-        //getDeviceLocation();
+        map.setOnMarkerClickListener(this);
 
         if (isHasPermissions()) {
             //view is ready to work
@@ -200,7 +195,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         Log.d(TAG, "findLocation::geo locating");
 
         if (currentLocation != null) {
-            setMapMarker(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+            setUserLocationMarker(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 
         }
 
@@ -232,7 +227,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      */
     public void moveCamera(@NonNull LatLng latLng, Float zoom) {
         Log.d(TAG, "moveCamera: moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        if (map != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        }
     }
 
     /**
@@ -250,35 +247,54 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         }
     }
 
+    /**
+     * This function add recycling spot (markers) on the map.
+     *
+     * @param list {@link RecyclingStation}
+     */
     @Override
-    public void showData(List<RecyclingStation> list) {
+    public void showData(final List<RecyclingStation> list) {
         if (map == null) {
             return;
         }
-
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        //How can I use address?
-        //String stationAddress = list.get(0).getRecyclingContainers().get(0).getPlaceAddress();
 
         for (RecyclingStation item : list) {
             View view = mInflater.inflate(R.layout.place_frame, mapView, false);
 
-            stationPair = new Pair<>(view, item);
-            setUpIconsInStation(item.getRecyclingContainers(), view);
+            //view.setOnClickListener(listener);
 
+            if (stations == null) {
+                stations = new ArrayList<>();
+            }
+            stations.add(item);
+
+            setUpIconsInStation(item.getContainers(), view);
             Bitmap bitmap = createBitmapFromView(view);
 
             // adding a marker on map with image from  drawable
             map.addMarker(new MarkerOptions()
+                    .snippet("tag")
                     .position(item.getLatLng())
                     .icon(BitmapDescriptorFactory
                             .fromBitmap(bitmap)));
-
-
         }
     }
 
+    /**
+     * This function work with AsyncTask class
+     */
+    public void getLocationFromAddress(final String strAddress) {
+        new LocationAsyncTask().execute(strAddress);
+    }
+
+
+    /**
+     * Make visible icons in view if station contain type of recycling containers.
+     *
+     * @param list {@link RecyclingStation}
+     * @param view View
+     */
     public void setUpIconsInStation(ArrayList<RecyclingContainer> list, View view) {
         for (RecyclingContainer container : list) {
 
@@ -296,7 +312,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
             }
 
             if (container.getType() == BOX) {
-                view.findViewById(R.id.imGlass).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.imBox).setVisibility(View.VISIBLE);
             }
         }
     }
@@ -320,18 +336,47 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
      *
      * @param latLng {@link LatLng}
      */
-    public void setMapMarker(LatLng latLng) {
-        Log.d(TAG, "setMapMarker::in");
+    public void setUserLocationMarker(LatLng latLng) {
+        Log.d(TAG, "setUserLocationMarker::in");
         if (map != null) {
-            map.clear();
+            //map.clear();
+
+            //delete old marker
+            if (marker != null) {
+                marker.remove();
+            }
 
             //set marker
             marker = map.addMarker(new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location_marker))
+                    .snippet("user")
                     .draggable(true)
             );
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.getSnippet().equals("tag")) {
+
+            for (RecyclingStation station : stations) {
+                if (station.getLatLng().equals(marker.getPosition())) {
+
+                    Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
+                    addItToFavorites(station.getAddress());
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
+    private void addItToFavorites(String address) {
+        Log.d(TAG, "addItToFavorites::" + address);
+        new Preferences(context).saveFavoritePlace(address);
+        // viewRecyclingStationPair.second.
     }
 
     /**
@@ -398,58 +443,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         presenter.onFoundUserLocationPressed();
     }
 
-    private void addCustomMarker() {
-//        Log.d(TAG, "addCustomMarker()");
-//        if (map == null) {
-//            return;
-//        }
-//
-//        // adding a marker on map with image from  drawable
-//        map.addMarker(new MarkerOptions()
-//                .position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))
-//                .draggable(true)
-//                .icon(BitmapDescriptorFactory
-//                        .fromBitmap(getMarkerBitmapFromView())));
-    }
-
-    private Bitmap getMarkerBitmapFromView() {
-
-//        View customMarkerView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.place_frame, null);
-//        customMarkerView.findViewById(R.id.imPlastic).setVisibility(View.VISIBLE);
-
-//        for (int count = 0; count < arrayID.length; ++count) {
-//            ImageView markerImageView = customMarkerView.findViewById(arrayID[count]);
-//            markerImageView.setImageResource(arraySources[count]);
-//        }
-
-
-//        ImageView markerImageView = customMarkerView.findViewById(R.id.imGlass);
-//        ImageView markerImageView2 = customMarkerView.findViewById(R.id.imPlastic);
-//        ImageView markerImageView3 = customMarkerView.findViewById(R.id.imPaper);
-//        ImageView markerImageView4 = customMarkerView.findViewById(R.id.imBox);
-//
-//        markerImageView.setImageResource(resId);
-//        markerImageView2.setImageResource(resId2);
-//        markerImageView3.setImageResource(resId3);
-//        markerImageView4.setImageResource(resId4);
-
-
-//        customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-//        customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());
-//
-//        customMarkerView.buildDrawingCache();
-//        Bitmap returnedBitmap = Bitmap.createBitmap(customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight(),
-//                Bitmap.Config.ARGB_8888);
-//
-//        Canvas canvas = new Canvas(returnedBitmap);
-//        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
-//        Drawable drawable = customMarkerView.getBackground();
-//        if (drawable != null)
-//            drawable.draw(canvas);
-//        customMarkerView.draw(canvas);
-        return null;
-    }
-
     /**
      * This function create pic from view. From LinearLayout in our case.
      *
@@ -473,12 +466,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
         return returnedBitmap;
     }
 
-
     public LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             currentLocation = location;
-            setMapMarker(new LatLng(location.getLatitude(), location.getLongitude()));
+            setUserLocationMarker(new LatLng(location.getLatitude(), location.getLongitude()));
         }
 
         @Override
@@ -552,7 +544,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
                 //user searching another spot on map
                 locationManager.removeUpdates(locationListener);
 
-                setMapMarker(place.getLatLng());
+                setUserLocationMarker(place.getLatLng());
                 moveCamera(place.getLatLng(), DEFAULT_ZOOM);
                /* // Format details of the place for display and show it in a TextView.
                 mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
@@ -583,6 +575,53 @@ public class MapFragment extends BaseFragment implements MapContract.View, OnMap
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "onConnectionFailed::" + connectionResult.getErrorMessage());
+    }
+
+    /**
+     * This class provide LatLng from address
+     */
+
+    //TODO make it in RxJava
+    class LocationAsyncTask extends AsyncTask<String, Void, LatLng> {
+
+        LatLng p1;
+
+        @Override
+        protected LatLng doInBackground(String... strings) {
+            try {
+                List<Address> address;
+
+                // May throw an IOException
+                address = geocoder.getFromLocationName(strings[0], 5);
+
+
+                if (address == null) {
+                    Log.d(TAG, "doInBackground::address-null");
+                    return null;
+                }
+
+                Address location = address.get(0);
+                p1 = new LatLng(location.getLatitude(), location.getLongitude());
+                Log.d(TAG, "getLocationFromAddress::Lat=" + location.getLatitude() + "Lng=" + location.getLongitude());
+
+            } catch (IOException ex) {
+                Log.e(TAG, "getLocationFromAddress::" + ex.getMessage());
+                ex.printStackTrace();
+            }
+
+            return p1;
+        }
+
+        @Override
+        protected void onPostExecute(LatLng latLng) {
+            super.onPostExecute(latLng);
+            Log.d(TAG, "onPostExecute");
+            if (latLng == null) {
+                doInBackground();
+            }
+            setUserLocationMarker(latLng);
+            Toast.makeText(context, "found!", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

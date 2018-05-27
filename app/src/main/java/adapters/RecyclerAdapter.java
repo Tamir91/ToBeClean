@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.mthli.slice.Slice;
-import model.RecyclingContainer;
+import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
 /**
@@ -25,20 +25,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
-    public ArrayList<RecyclingContainer> recyclingContainers;
+    public ArrayList<RecyclingStation> stations;
     private Context context;
 
     /**
      * Constructor
      */
-    public RecyclerAdapter(ArrayList<RecyclingContainer> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<RecyclingStation> listItems, Context context) {
         this.context = context;
-        this.recyclingContainers = listItems;
+        this.stations = listItems;
     }
 
     @Override
     public int getItemCount() {
-        return recyclingContainers.size();
+        return stations.size();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
-        RecyclingContainer place = recyclingContainers.get(position);
+        RecyclingStation place = stations.get(position);
         holder.setViews(place);
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
@@ -102,17 +102,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<  RecyclingContainer  >}
+     * @param items {@link ArrayList<  RecyclingStation  >}
      * @return boolean
      */
-    public boolean addItems(ArrayList<RecyclingContainer> items) {
-        return recyclingContainers.addAll(items);
+    public boolean addItems(ArrayList<RecyclingStation> items) {
+        return stations.addAll(items);
     }
 
     /**
      * This method clean list from all items*/
     public void cleanListItems() {
-        recyclingContainers = new ArrayList<>();
+        stations = new ArrayList<>();
     }
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
@@ -139,9 +139,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             return frame;
         }
 
-        void setViews(RecyclingContainer item) {
-            this.addressTextView.setText(item.getPlaceAddress());
-            this.imageView.setImageResource(item.getImgID());
+        void setViews(RecyclingStation station) {
+            this.addressTextView.setText(station.getAddress());
+            //this.imageView.setImageResource(item.getImgID());
         }
     }
 }

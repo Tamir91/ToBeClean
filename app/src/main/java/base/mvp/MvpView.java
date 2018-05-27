@@ -2,6 +2,7 @@ package base.mvp;
 
 import java.util.List;
 
+import model.RecyclingContainer;
 import model.RecyclingStation;
 
 public interface MvpView {

@@ -93,7 +93,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         Log.d(TAG, "showData::in");
 
         if (list.size() < 1) {
-            //adapter.addItems(list);
+            adapter.addItems(list);
         } else {
            // adapter.addItems(list);
         }
@@ -121,7 +121,6 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public void setImg(int currentPosition, int imgID) {
         this.currentPosition = currentPosition;
         RecyclingContainer recyclingContainer = recyclingContainers.get(currentPosition);
-        recyclingContainer.setImgID(imgID);
     }
 
 
