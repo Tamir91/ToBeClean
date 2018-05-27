@@ -15,7 +15,7 @@ public class MockDataProvider {
         buildMockList();
     }
 
-    public ArrayList<RecyclingContainer> buildMockList() {
+    public ArrayList<RecyclingStation> buildMockList() {
 
         if (recyclingStationList == null) {
             recyclingStationList = new ArrayList();
@@ -39,22 +39,12 @@ public class MockDataProvider {
             recyclingStation2.setLatLng(new LatLng(32.783594, 35.013078));
 
             recyclingStationList.add(recyclingStation2);
-
-//
-//            RecyclingContainer recyclingStation3 = new RecyclingContainer();
-//            recyclingStation3.addContainer(new RecyclingContainer(ADDRESS + "Berel 9", 0));
-//            recyclingStationList.add(recyclingStation3);
-//
-//            RecyclingContainer recyclingStation4 = new RecyclingContainer();
-//            recyclingStation4.addContainer(new RecyclingContainer(ADDRESS + "Berel 9", 0));
-//            recyclingStationList.add(recyclingStation4);
-
         }
 
         return recyclingStationList;
     }
 
-    public ArrayList<RecyclingContainer> getRecyclingStationList() {
+    public ArrayList<RecyclingStation> getRecyclingStationList() {
         return recyclingStationList;
     }
 

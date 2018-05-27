@@ -2,12 +2,14 @@ package map.mvp;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import base.mvp.BasePresenter;
 import model.RecyclingContainer;
+import model.RecyclingStation;
 
 public class MapPresenter extends BasePresenter<MapContract.View> implements MapContract.Presenter {
 
@@ -22,7 +24,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     MapModel mapModel;
 
     //vars
-    List<RecyclingContainer> stationList;
+    ArrayList<RecyclingStation> stations;
 
 
     @Override
@@ -32,7 +34,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
 
         //TODO inject mapModel with dagger
         mapModel = new MapModel();
-        stationList = mapModel.getStationList();
+        stations = mapModel.getStationList();
 
     }
 
@@ -47,7 +49,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
         getView().moveCameraToUserLocation(DEFAULT_ZOOM);
 
         getView().updateLocation(GPS_PROVIDER, minUpdatingTime, minDistance);
-        getView().showData(stationList);//show station on the map
+        getView().showData(stations);//show station on the map
     }
 
     @Override

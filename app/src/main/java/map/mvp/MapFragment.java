@@ -253,7 +253,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
      * @param list {@link RecyclingStation}
      */
     @Override
-    public void showData(final List<RecyclingStation> list) {
+    public void showData(final ArrayList<RecyclingStation> list) {
         if (map == null) {
             return;
         }

@@ -1,6 +1,7 @@
 package adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,7 +103,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<  RecyclingStation  >}
+     * @param items {@link ArrayList<RecyclingStation>}
      * @return boolean
      */
     public boolean addItems(ArrayList<RecyclingStation> items) {
@@ -125,10 +126,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         RecyclerHolder(View view) {
             super(view);
 
-            this.frame = (FrameLayout) view.findViewById(R.id.frame);
+            this.frame = view.findViewById(R.id.frame);
             this.addressTextView = view.findViewById(R.id.titlePlace);
             this.imageView = view.findViewById(R.id.imgPlace);
 
+            addressTextView.setTextColor(Color.BLACK);
             //imageView.setOnClickListener();
         }
 
@@ -140,8 +142,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         void setViews(RecyclingStation station) {
-            this.addressTextView.setText(station.getAddress());
-            //this.imageView.setImageResource(item.getImgID());
+            this.addressTextView.setText(R.string.app_name);
+
+            //this.addressTextView.setText(station.getAddress());
+            this.imageView.setImageResource(R.mipmap.ic_launcher);
         }
     }
 }

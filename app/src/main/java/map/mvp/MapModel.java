@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 import model.MockDataProvider;
 import model.RecyclingContainer;
+import model.RecyclingStation;
 
 /**
  * This temple class created for working with mock data
  */
 public class MapModel {
 
-    private static ArrayList<RecyclingContainer> stationList;
+    private static ArrayList<RecyclingStation> stationList;
     private static MockDataProvider mockDataProvider;
 
     /**
@@ -28,7 +29,7 @@ public class MapModel {
      *
      * @return ArrayList
      */
-    public ArrayList<RecyclingContainer> getStationList() {
+    public ArrayList<RecyclingStation> getStationList() {
         return stationList;
     }
 

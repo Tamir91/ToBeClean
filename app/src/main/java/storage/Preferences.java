@@ -16,7 +16,7 @@ public class Preferences {
 
     private final static String PLACES = "FAVORITES_PLACES";
 
-    private SharedPreferences preferences;
+    private static SharedPreferences preferences;
 
     public Preferences(Context context) {
         preferences = context.getSharedPreferences(TAG, 0);
