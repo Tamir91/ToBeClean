@@ -25,7 +25,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
 
-    public ArrayList<RecyclingContainer> recyclingContainers;
+    private ArrayList<RecyclingContainer> recyclingContainers;
     private Context context;
 
     /**
@@ -102,7 +102,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<  RecyclingContainer  >}
+     * @param items {@link ArrayList<RecyclingContainer>}
      * @return boolean
      */
     public boolean addItems(ArrayList<RecyclingContainer> items) {
@@ -125,7 +125,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         RecyclerHolder(View view) {
             super(view);
 
-            this.frame = (FrameLayout) view.findViewById(R.id.frame);
+            this.frame = view.findViewById(R.id.frame);
             this.addressTextView = view.findViewById(R.id.titlePlace);
             this.imageView = view.findViewById(R.id.imgPlace);
 
