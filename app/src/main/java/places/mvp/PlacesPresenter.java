@@ -7,6 +7,7 @@ import java.util.List;
 
 import base.mvp.BasePresenter;
 import model.RecyclingContainer;
+import model.RecyclingStation;
 
 public class PlacesPresenter extends BasePresenter<PlacesContract.View> implements PlacesContract.Presenter {
 
@@ -26,7 +27,7 @@ public class PlacesPresenter extends BasePresenter<PlacesContract.View> implemen
     public void viewIsReady() {
         Log.d(TAG, "viewIsReady::in");
         //Where from presenter get arrayList? Model?
-        //getView().showData(new List<RecyclingContainer>());
+        getView().showData(new ArrayList<RecyclingStation>());
     }
 
     @Override

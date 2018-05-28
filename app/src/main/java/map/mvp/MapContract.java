@@ -1,10 +1,7 @@
 package map.mvp;
 
-import java.util.List;
-
 import base.mvp.MvpPresenter;
 import base.mvp.MvpView;
-import model.RecyclingStation;
 
 public interface MapContract {
 

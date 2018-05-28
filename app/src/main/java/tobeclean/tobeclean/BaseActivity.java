@@ -136,6 +136,7 @@ public class BaseActivity extends AppCompatActivity {
 
         AlertDialog mDialog = mBuilder.create();
         //show alert dialog
+        mDialog.getListView().setBackgroundResource(R.drawable.white_border);
         mDialog.show();
     }
 
@@ -158,7 +159,7 @@ public class BaseActivity extends AppCompatActivity {
    // added by michael- 25.05.18
     public void loadLocale(){
         SharedPreferences prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE);
-        String language = prefs.getString("My_Lang","");
+        String language = prefs.getString("My_Lang","en");
         setLocale(language);
 
     }
