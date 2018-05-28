@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ToBeClean</string>
 
     <string name="my_places">המקומות שלי</string>
     <string name="add_to_my_places">הוסף למועדפים</string>
     <string name="settings">הגדרות</string>
     <string name="exit">יציאה</string>
-    <string name="search">חיפוש</string>
     <string name="Hint_for_tvSearch">הקלד כתובת, עיר</string>
     <string name="ok">אישור</string>
     <string name="cancel">ביטול</string>
-    <string name="permission_message">הודעת הרשאה</string>
-    <string name="place_details">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
-    <string name="selected_place">המקום האחרון שנבחר:</string>
-    <string name="glassrecyclingicon">מיחזור זכוכית</string>
-    <string name="plasticsrecyclingicon">מיחזור פלסטיק</string>
-    <string name="paperrecyclingicon">מיחזור נייר</string>
-    <string name="boxrecyclingicon">מיחזור אריזות</string>
 
 </resources>

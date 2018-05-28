@@ -1,7 +1,11 @@
 package adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +16,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import io.github.mthli.slice.Slice;
-import model.RecyclingContainer;
+import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
 /**
@@ -21,24 +25,30 @@ import tobeclean.tobeclean.R;
  */
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerHolder> {
+    private static final String TAG = RecyclerAdapter.class.getSimpleName();
+
     private static final int VIEW_TYPE_TOP = 0x01;
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
+    private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
 
-    private ArrayList<RecyclingContainer> recyclingContainers;
+    private ShareActionProvider share;
+
+
+    public ArrayList<RecyclingStation> stations;
     private Context context;
 
     /**
      * Constructor
      */
-    public RecyclerAdapter(ArrayList<RecyclingContainer> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<RecyclingStation> listItems, Context context) {
         this.context = context;
-        this.recyclingContainers = listItems;
+        this.stations = listItems;
     }
 
     @Override
     public int getItemCount() {
-        return recyclingContainers.size();
+        return stations.size();
     }
 
     @Override
@@ -65,7 +75,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
-        RecyclingContainer place = recyclingContainers.get(position);
+        RecyclingStation place = stations.get(position);
         holder.setViews(place);
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
@@ -102,17 +112,33 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * This method compare old list items with new list.
      *
-     * @param items {@link ArrayList<RecyclingContainer>}
+     * @param items {@link ArrayList<RecyclingStation>}
      * @return boolean
      */
-    public boolean addItems(ArrayList<RecyclingContainer> items) {
-        return recyclingContainers.addAll(items);
+    public boolean addItems(ArrayList<RecyclingStation> items) {
+        return stations.addAll(items);
     }
 
     /**
      * This method clean list from all items*/
     public void cleanListItems() {
-        recyclingContainers = new ArrayList<>();
+        stations = new ArrayList<>();
+    }
+
+    //share location
+    public void shareLocation(String address) {
+        Log.d(TAG, "shareLocation");
+        String link = GOOGLE_MAP_ADDRESS + address;
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+
+        Intent new_intent = Intent.createChooser(shareIntent, "Share via");
+        new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(new_intent);
     }
 
     class RecyclerHolder extends RecyclerView.ViewHolder {
@@ -122,14 +148,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
         //Constructor
-        RecyclerHolder(View view) {
+        RecyclerHolder(final View view) {
             super(view);
 
             this.frame = view.findViewById(R.id.frame);
             this.addressTextView = view.findViewById(R.id.titlePlace);
             this.imageView = view.findViewById(R.id.imgPlace);
 
-            //imageView.setOnClickListener();
+            addressTextView.setTextColor(Color.BLACK);
+            view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    shareLocation(addressTextView.getText().toString());
+                }
+            });
         }
 
         /**
@@ -139,9 +171,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             return frame;
         }
 
-        void setViews(RecyclingContainer item) {
-            this.addressTextView.setText(item.getPlaceAddress());
-            this.imageView.setImageResource(item.getImgID());
+        void setViews(RecyclingStation station) {
+            this.addressTextView.setText(station.getAddress());
+            this.imageView.setImageResource(R.mipmap.ic_launcher);
         }
     }
 }

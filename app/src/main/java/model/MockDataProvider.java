@@ -32,23 +32,13 @@ public class MockDataProvider {
 
             RecyclingStation recyclingStation2 = new RecyclingStation();
 
-            recyclingStation2.addContainer(new RecyclingContainer(ADDRESS + "Pinhas Re'em 2", 0));
-            recyclingStation2.addContainer(new RecyclingContainer(ADDRESS + "Pinhas Re'em 2", 1));
-            recyclingStation2.addContainer(new RecyclingContainer(ADDRESS + "Pinhas Re'em 2", 2));
-            recyclingStation2.addContainer(new RecyclingContainer(ADDRESS + "Pinhas Re'em 2", 3));
+            recyclingStation2.addContainer(new RecyclingContainer( "Pinhas Re'em 2" + ADDRESS , 0));
+            recyclingStation2.addContainer(new RecyclingContainer( "Pinhas Re'em 2" + ADDRESS , 1));
+            recyclingStation2.addContainer(new RecyclingContainer( "Pinhas Re'em 2" + ADDRESS , 2));
+            recyclingStation2.addContainer(new RecyclingContainer( "Pinhas Re'em 2" + ADDRESS , 3));
             recyclingStation2.setLatLng(new LatLng(32.783594, 35.013078));
 
             recyclingStationList.add(recyclingStation2);
-
-//
-//            RecyclingStation recyclingStation3 = new RecyclingStation();
-//            recyclingStation3.addContainer(new RecyclingContainer(ADDRESS + "Berel 9", 0));
-//            recyclingStationList.add(recyclingStation3);
-//
-//            RecyclingStation recyclingStation4 = new RecyclingStation();
-//            recyclingStation4.addContainer(new RecyclingContainer(ADDRESS + "Berel 9", 0));
-//            recyclingStationList.add(recyclingStation4);
-
         }
 
         return recyclingStationList;

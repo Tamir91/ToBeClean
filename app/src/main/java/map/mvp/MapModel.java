@@ -3,6 +3,7 @@ package map.mvp;
 import java.util.ArrayList;
 
 import model.MockDataProvider;
+import model.RecyclingContainer;
 import model.RecyclingStation;
 
 /**

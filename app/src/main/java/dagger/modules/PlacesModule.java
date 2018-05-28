@@ -10,6 +10,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.PlacesScope;
 import model.RecyclingContainer;
+import model.RecyclingStation;
 import places.mvp.PlacesContract;
 import places.mvp.PlacesPresenter;
 
@@ -18,13 +19,13 @@ public class PlacesModule implements ActivityModule{
 
     @PlacesScope
     @Provides
-    RecyclingContainer provideRecyclingContainer() {
-        return new RecyclingContainer("lol", 0);
+    RecyclingStation provideRecyclingStation() {
+        return new RecyclingStation();
     }
     
     @PlacesScope
     @Provides
-    public ArrayList<RecyclingContainer> provideList(RecyclingContainer recyclingContainer) {
+    public ArrayList<RecyclingStation> provideList(RecyclingStation station) {
         return new ArrayList<>();
     }
 
@@ -36,7 +37,7 @@ public class PlacesModule implements ActivityModule{
 
     @PlacesScope
     @Provides
-    RecyclerAdapter provideRecyclerAdapter(ArrayList<RecyclingContainer> items, Context context) {
+    RecyclerAdapter provideRecyclerAdapter(ArrayList<RecyclingStation> items, Context context) {
         return new RecyclerAdapter(items, context);
     }
 }
