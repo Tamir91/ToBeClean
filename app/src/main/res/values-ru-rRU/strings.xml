@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ToBeClean</string>
-
     <string name="my_places">Мои Места</string>
     <string name="add_to_my_places">Добавить в Избранное</string>
     <string name="settings">Настройки</string>
     <string name="exit">Выход</string>
-    <string name="search">Пойск</string>
     <string name="Hint_for_tvSearch">Введите Адрес, Город</string>
     <string name="ok">Есть</string>
     <string name="cancel">Отмена</string>
-    <string name="permission_message">сообщение о разрешении</string>
-    <string name="place_details">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
-    <string name="selected_place">Последнее выбранное место:</string>
-    <string name="glassrecyclingicon">Стекло</string>
-    <string name="plasticsrecyclingicon">Пластик</string>
-    <string name="paperrecyclingicon">бумага</string>
-    <string name="boxrecyclingicon">Картон</string>
-
 
 </resources>
