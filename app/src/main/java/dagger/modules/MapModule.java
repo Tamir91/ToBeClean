@@ -13,6 +13,7 @@ import app.dagger.ActivityModule;
 import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.MapScope;
+import helpers.TinyDB;
 import map.mvp.MapContract;
 import map.mvp.MapModel;
 import map.mvp.MapPresenter;
@@ -68,5 +69,11 @@ public class MapModule implements ActivityModule {
     @Provides
     public MapModel provideMapModel() {
         return new MapModel();
+    }
+
+    @MapScope
+    @Provides
+    public TinyDB provideTinyDB(Context context) {
+        return new TinyDB(context);
     }
 }

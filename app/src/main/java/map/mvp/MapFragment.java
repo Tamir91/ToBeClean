@@ -115,6 +115,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @Inject
     GeoDataClient dataClient;
 
+    @Inject
+    TinyDB tinyDB;
+
     //vars
     private GoogleMap map;
     private Marker marker;
@@ -406,8 +409,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
     private void addItToFavorites(String address) {
         Log.d(TAG, "addItToFavorites::" + address);
-        new Preferences(context).saveFavoritePlace(address);
-        // viewRecyclingStationPair.second.
+
+        //new Preferences(context).saveFavoritePlace(address);
     }
 
     /**
