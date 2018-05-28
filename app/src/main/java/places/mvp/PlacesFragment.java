@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -80,8 +79,8 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public void onDestroy() {
         super.onDestroy();
 
+        adapter.cleanListItems();
         presenter.detachView();
-
         presenter.destroy();
     }
 
@@ -94,7 +93,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         Log.d(TAG, "showData::in");
 
         RecyclingStation station = new RecyclingStation();
-        station.setAddress(new Preferences(getContext()).getPlace());
+        station.setAddress(new Preferences(getContext()).getFavoritePlace());
         list.add(station);
 
         Log.d(TAG, "showData::address::" + station.getAddress());

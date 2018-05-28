@@ -19,7 +19,7 @@ public class Preferences {
     private static SharedPreferences preferences;
 
     public Preferences(Context context) {
-        preferences = context.getSharedPreferences(TAG, 0);
+        preferences = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
     }
 
     private SharedPreferences.Editor getEditor() {
@@ -28,7 +28,7 @@ public class Preferences {
 
     /**This function write language app to memory */
     public void setLanguageApp(String s) {
-        getEditor().putString(LANGUAGE, s);
+        getEditor().putString(LANGUAGE, s).apply();
     }
 
     /**This function get language app from memory */
@@ -37,13 +37,18 @@ public class Preferences {
     }
 
     public void saveFavoritePlace(String s){
-        getEditor().putString(PLACES, s);
+        getEditor().putString(PLACES, s).apply();
         Log.d(TAG, "saveFavoritePlace::in");
     }
 
-    public String getPlace(){
-        Log.d(TAG, "getPlace::in");
-        return preferences.getString(PLACES, "not_Found");
+    public String getFavoritePlace(){
+        Log.d(TAG, "getFavoritePlace::in");
+        return preferences.getString(PLACES, "adapter::not_found");
+    }
+
+    public void removeFavoritePlace(String palce) {
+        getEditor().remove(PLACES).apply();
+
     }
 
 }

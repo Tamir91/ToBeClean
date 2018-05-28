@@ -142,9 +142,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         void setViews(RecyclingStation station) {
-            this.addressTextView.setText(R.string.app_name);
+            //this.addressTextView.setText(R.string.app_name);
 
-            //this.addressTextView.setText(station.getAddress());
+            this.addressTextView.setText(station.getAddress());
             this.imageView.setImageResource(R.mipmap.ic_launcher);
         }
     }
