@@ -16,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -163,6 +164,35 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.onStop();
+
+    }
+
+    @Override
+    public void stopLocationUpdating() {
+        try {
+            locationManager.removeUpdates(locationListener);
+        } catch (SecurityException e) {
+            Log.e(TAG, "Failed to stop listening for location updates", e);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.viewIsReady();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.detachView();
+        presenter.destroy();
     }
 
     @Override

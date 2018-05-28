@@ -12,6 +12,8 @@ public interface MapContract {
 
         void findLocation();
 
+        void stopLocationUpdating();
+
         void moveCameraToUserLocation(Float zoom);
 
         void getLastKnownLocation();

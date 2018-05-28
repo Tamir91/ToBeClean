@@ -1,8 +1,11 @@
 package adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +25,15 @@ import tobeclean.tobeclean.R;
  */
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerHolder> {
+    private static final String TAG = RecyclerAdapter.class.getSimpleName();
+
     private static final int VIEW_TYPE_TOP = 0x01;
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
+    private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
+
+    private ShareActionProvider share;
+
 
     public ArrayList<RecyclingStation> stations;
     private Context context;
@@ -116,6 +125,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         stations = new ArrayList<>();
     }
 
+    //share location
+    public void shareLocation(String address) {
+        Log.d(TAG, "shareLocation");
+        String link = GOOGLE_MAP_ADDRESS + address;
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+
+        Intent new_intent = Intent.createChooser(shareIntent, "Share via");
+        new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(new_intent);
+    }
+
     class RecyclerHolder extends RecyclerView.ViewHolder {
         private FrameLayout frame;
         private TextView addressTextView;
@@ -123,7 +148,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
         //Constructor
-        RecyclerHolder(View view) {
+        RecyclerHolder(final View view) {
             super(view);
 
             this.frame = view.findViewById(R.id.frame);
@@ -131,7 +156,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             this.imageView = view.findViewById(R.id.imgPlace);
 
             addressTextView.setTextColor(Color.BLACK);
-            //imageView.setOnClickListener();
+            view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    shareLocation(addressTextView.getText().toString());
+                }
+            });
         }
 
         /**
@@ -142,8 +172,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         void setViews(RecyclingStation station) {
-            //this.addressTextView.setText(R.string.app_name);
-
             this.addressTextView.setText(station.getAddress());
             this.imageView.setImageResource(R.mipmap.ic_launcher);
         }

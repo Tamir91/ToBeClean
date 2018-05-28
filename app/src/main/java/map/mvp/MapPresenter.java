@@ -54,6 +54,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
 
     @Override
     public void onStop() {
+        getView().stopLocationUpdating();
     }
 
     @Override
