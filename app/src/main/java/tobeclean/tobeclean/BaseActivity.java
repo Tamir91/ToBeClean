@@ -136,6 +136,7 @@ public class BaseActivity extends AppCompatActivity {
 
         AlertDialog mDialog = mBuilder.create();
         //show alert dialog
+        mDialog.getListView().setBackgroundResource(R.drawable.white_border);
         mDialog.show();
     }
 

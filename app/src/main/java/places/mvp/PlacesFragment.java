@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -23,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import model.RecyclingContainer;
 import model.RecyclingStation;
+import storage.Preferences;
 import tobeclean.tobeclean.R;
 
 /**
@@ -79,8 +79,8 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public void onDestroy() {
         super.onDestroy();
 
+        adapter.cleanListItems();
         presenter.detachView();
-
         presenter.destroy();
     }
 
@@ -89,11 +89,17 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
      * @param list ArrayList<RecyclingContainer>
      */
     @Override
-    public void showData(List<RecyclingStation> list) {
+    public void showData(ArrayList<RecyclingStation> list) {
         Log.d(TAG, "showData::in");
 
-        if (list.size() < 1) {
-            //adapter.addItems(list);
+        RecyclingStation station = new RecyclingStation();
+        station.setAddress(new Preferences(getContext()).getFavoritePlace());
+        list.add(station);
+
+        Log.d(TAG, "showData::address::" + station.getAddress());
+
+        if (list.size() < 4) {
+            adapter.addItems(list);
         } else {
            // adapter.addItems(list);
         }
@@ -121,7 +127,6 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public void setImg(int currentPosition, int imgID) {
         this.currentPosition = currentPosition;
         RecyclingContainer recyclingContainer = recyclingContainers.get(currentPosition);
-        recyclingContainer.setImgID(imgID);
     }
 
 

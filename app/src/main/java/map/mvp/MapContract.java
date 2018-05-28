@@ -1,10 +1,7 @@
 package map.mvp;
 
-import java.util.List;
-
 import base.mvp.MvpPresenter;
 import base.mvp.MvpView;
-import model.RecyclingStation;
 
 public interface MapContract {
 
@@ -14,6 +11,8 @@ public interface MapContract {
         void setMyLocationButtonVisibility(Boolean condition);
 
         void findLocation();
+
+        void stopLocationUpdating();
 
         void moveCameraToUserLocation(Float zoom);
 

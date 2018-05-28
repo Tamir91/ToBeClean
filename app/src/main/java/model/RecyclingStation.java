@@ -5,21 +5,24 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
-
+/**
+ * This class may contain recycling containers of some types
+ */
 public class RecyclingStation {
 
     //In this app 6 containers the maximum in station. But this not real world.
     private static final int MAX_CONTAINERS_IN_STATION = 4;
-    LatLng latLng;
+    private LatLng latLng;
+    private String address;
 
-    private ArrayList<RecyclingContainer> recyclingContainers;
+    private ArrayList<RecyclingContainer> containers;
 
 
     /**
      * Empty constructor.
      */
     public RecyclingStation() {
-        recyclingContainers = new ArrayList<>();
+        containers = new ArrayList<>();
     }
 
 
@@ -29,8 +32,8 @@ public class RecyclingStation {
      * @param list {@link ArrayList<RecyclingContainer>}
      */
     public RecyclingStation(ArrayList<RecyclingContainer> list) {
-        if (recyclingContainers.size() < MAX_CONTAINERS_IN_STATION) {
-            recyclingContainers.addAll(list);
+        if (containers.size() < MAX_CONTAINERS_IN_STATION) {
+            containers.addAll(list);
         }
     }
 
@@ -41,8 +44,13 @@ public class RecyclingStation {
      * @return boolean
      */
     public boolean addContainer(RecyclingContainer container) {
-        if (recyclingContainers.size() < MAX_CONTAINERS_IN_STATION) {
-            recyclingContainers.add(container);
+        if (containers.size() < MAX_CONTAINERS_IN_STATION) {
+            containers.add(container);
+
+            if(address == null){
+                address = container.getContainerAddress();
+            }
+            //TODO add checking: container address must be same with s
             return true;
         }
         return false;
@@ -54,8 +62,8 @@ public class RecyclingStation {
      *
      * @return ArrayList
      */
-    public ArrayList<RecyclingContainer> getRecyclingContainers() {
-        return recyclingContainers;
+    public ArrayList<RecyclingContainer> getContainers() {
+        return containers;
     }
 
     /**
@@ -64,7 +72,7 @@ public class RecyclingStation {
      * @return int
      */
     public int getNumberContainersInStation() {
-        return recyclingContainers.size();
+        return containers.size();
     }
 
     /**
@@ -82,5 +90,13 @@ public class RecyclingStation {
 
     public void setLatLng(LatLng latLng) {
         this.latLng = latLng;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
