@@ -19,6 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -62,6 +68,9 @@ dependencies {
     //ViewModel
     implementation "android.arch.lifecycle:extensions:1.1.1"
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+
+    //TinyDB
+    //implementation 'com.google.code.gson:gson:2.4'
 
 
     implementation 'com.android.support:design:27.1.1'
