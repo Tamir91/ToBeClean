@@ -3,6 +3,7 @@ package adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
@@ -10,11 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import helpers.CleanConstants;
+import helpers.TinyDB;
 import io.github.mthli.slice.Slice;
 import model.RecyclingStation;
 import tobeclean.tobeclean.R;
@@ -32,11 +37,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_BOTTOM = 0x03;
     private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
 
-    private ShareActionProvider share;
 
 
     public ArrayList<RecyclingStation> stations;
     private Context context;
+    private TinyDB tinyDB;
 
     /**
      * Constructor
@@ -44,6 +49,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     public RecyclerAdapter(ArrayList<RecyclingStation> listItems, Context context) {
         this.context = context;
         this.stations = listItems;
+        tinyDB = new TinyDB(context);
     }
 
     @Override
@@ -75,8 +81,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
-        RecyclingStation place = stations.get(position);
-        holder.setViews(place);
+        RecyclingStation station = stations.get(position);
+        holder.setViews(station);
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
         int viewType = getItemViewType(position);
@@ -125,6 +131,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         stations = new ArrayList<>();
     }
 
+    /***/
+    public void deleteItem(View view){
+    }
+
     //share location
     public void shareLocation(String address) {
         Log.d(TAG, "shareLocation");
@@ -145,21 +155,46 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         private FrameLayout frame;
         private TextView addressTextView;
         private ImageView imageView;
+        private ImageButton shareButton;
 
 
         //Constructor
         RecyclerHolder(final View view) {
             super(view);
 
+            init(view);
+            initListeners(view);
+        }
+
+        //init views
+        private void init(@NonNull View view) {
             this.frame = view.findViewById(R.id.frame);
             this.addressTextView = view.findViewById(R.id.titlePlace);
             this.imageView = view.findViewById(R.id.imgPlace);
+            this.shareButton = view.findViewById(R.id.imageButton);
 
             addressTextView.setTextColor(Color.BLACK);
-            view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+        }
+
+        //init listeners
+        private void initListeners(@NonNull final View view) {
+            shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    shareLocation(addressTextView.getText().toString());
+                    //shareLocation(addressTextView.getText().toString());
+                    //tinyDB.clear();
+                    tinyDB.remove(CleanConstants.ADDRESS);
+
+                }
+            });
+
+            view.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //tinyDB.clear();
+                    tinyDB.remove(CleanConstants.ADDRESS);
+                    Toast.makeText(context, "ffff", Toast.LENGTH_SHORT).show();
+                    return false;
                 }
             });
         }
@@ -174,6 +209,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         void setViews(RecyclingStation station) {
             this.addressTextView.setText(station.getAddress());
             this.imageView.setImageResource(R.mipmap.ic_launcher);
+            this.shareButton.setImageResource(R.mipmap.ic_share);
         }
     }
 }

@@ -9,6 +9,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.components.MapComponent;
 import dagger.components.PlacesComponent;
+import dagger.scopes.MapScope;
+import helpers.TinyDB;
 import storage.Preferences;
 
 @Module(subcomponents = {MapComponent.class, PlacesComponent.class})
@@ -29,6 +31,12 @@ public class AppModule {
     @Provides
     Preferences providePreferences() {
         return new Preferences(context);
+    }
+
+    @Singleton
+    @Provides
+    public TinyDB provideTinyDB(Context context) {
+        return new TinyDB(context);
     }
 
     /*@Singleton
