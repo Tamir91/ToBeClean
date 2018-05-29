@@ -400,13 +400,36 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     }
 
     private void addItToFavorites(RecyclingStation station) {
+        if (isStationInFavorites(station)) {
+            return;
+        }
+
         Log.d(TAG, "addItToFavorites::stationAddress = " + station.getAddress());
 
-        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS,  RecyclingStation.class );
+        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
         Log.d(TAG, "addItToFavorites::" + "favorites_station_was = " + favorites.size());
         favorites.add(station);
 
         tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
+    }
+
+    /**
+     * This function check if station inn favorites
+     *
+     * @param station {@link RecyclingStation}
+     * @return boolean
+     */
+    public boolean isStationInFavorites(RecyclingStation station) {
+        ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+
+        for (Object obj : objects) {
+
+            if (((RecyclingStation) obj).getAddress().equals(station.getAddress())) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**
