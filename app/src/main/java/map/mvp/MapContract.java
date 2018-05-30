@@ -26,13 +26,14 @@ public interface MapContract {
 
         boolean showSoftKeyboard();
 
-
+        void showStationMenu();
     }
 
     interface Presenter extends MvpPresenter<View> {
 
         void onFoundUserLocationPressed();
 
+        void onStationClick();
     }
 
 }

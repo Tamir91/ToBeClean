@@ -31,6 +31,17 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="clipArt">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="a9b813" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="clipartAsset">
                                         <value>
                                           <PersistentState>
@@ -47,7 +58,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundColor" value="98cbfc" />
-                                      <entry key="outputName" value="ic_share" />
+                                      <entry key="outputName" value="ic_share_yellow" />
                                     </map>
                                   </option>
                                 </PersistentState>

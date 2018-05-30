@@ -4,6 +4,7 @@ package map.mvp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.graphics.Bitmap;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -92,6 +94,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @BindView(R.id.map)
     MapView mapView;
 
+    @BindView(R.id.llShareOrSave)
+    RelativeLayout rlShareOrSave;
+
     @Inject
     Context context;
 
@@ -117,7 +122,19 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     private Location currentLocation;
 
     ArrayList<RecyclingStation> stations;
+    RecyclingStation clickedStation;
 
+    @OnClick(R.id.ibShare)
+    public void onClickShareButton() {
+        shareStationLocation(clickedStation);
+        rlShareOrSave.setVisibility(View.GONE);
+    }
+
+    @OnClick(R.id.ibAddToFavorites)
+    public void onClickAddToFavoritesButton() {
+        addStationToFavorites(clickedStation);
+        rlShareOrSave.setVisibility(View.GONE);
+    }
 
     @Nullable
     @Override
@@ -307,6 +324,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         }
     }
 
+    @Override
+    public void showStationMenu() {
+        rlShareOrSave.setVisibility(View.VISIBLE);
+    }
+
     /**
      * This function work with AsyncTask class
      */
@@ -384,37 +406,38 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.getSnippet().equals("tag")) {
 
-            for (RecyclingStation station : stations) {
-                if (station.getLatLng().equals(marker.getPosition())) {
+        for (RecyclingStation station : stations) {//find station that was clicked(marker).
 
-                    Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
-                    addItToFavorites(station);
-                    return true;
-                }
+            if (station.getLatLng().equals(marker.getPosition())) {
+
+                Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
+                clickedStation = station;
+                presenter.onStationClick();
+
+                //addStationToFavorites(station);
+                return true;
             }
-
         }
         return false;
     }
 
-    private void addItToFavorites(RecyclingStation station) {
-        if (isStationInFavorites(station)) {
-            return;
-        }
-
-        Log.d(TAG, "addItToFavorites::stationAddress = " + station.getAddress());
-
-        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
-        Log.d(TAG, "addItToFavorites::" + "favorites_station_was = " + favorites.size());
-        favorites.add(station);
-
-        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
-    }
+//    private void addStationToFavorites(RecyclingStation station) {
+//        if (isStationInFavorites(station)) {
+//            return;
+//        }
+//
+//        Log.d(TAG, "addStationToFavorites::stationAddress = " + station.getAddress());
+//
+//        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+//        Log.d(TAG, "addStationToFavorites::" + "favorites_station_was = " + favorites.size());
+//        favorites.add(station);
+//
+//        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
+//    }
 
     /**
-     * This function check if station inn favorites
+     * This function check if station in favorite list of station
      *
      * @param station {@link RecyclingStation}
      * @return boolean
@@ -425,6 +448,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         for (Object obj : objects) {
 
             if (((RecyclingStation) obj).getAddress().equals(station.getAddress())) {
+                Log.d(TAG, "isStationInFavorites::station_in_favorites_already");
                 return true;
             }
 
@@ -494,6 +518,55 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         //addCustomMarker();
 
         presenter.onFoundUserLocationPressed();
+    }
+
+
+
+    /**
+     * Sharing location via other app.
+     *
+     * @param station {@link RecyclingStation}
+     */
+    public void shareStationLocation(RecyclingStation station) {
+        if (station == null) {
+            Log.e(TAG, "shareStationLocation::station is null");
+            return;
+        }
+        String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
+        String link = GOOGLE_MAP_ADDRESS + station.getAddress();
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+
+        Intent new_intent = Intent.createChooser(shareIntent, "Share via");
+        new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        Log.d(TAG, "shareStationLocation::success");
+        context.startActivity(new_intent);
+    }
+
+
+
+    /**
+     * Adding station to favorite list
+     *
+     * @param station {@link RecyclingStation}
+     */
+    private void addStationToFavorites(RecyclingStation station) {
+        if (isStationInFavorites(station)) {
+            return;
+        }
+
+        Log.d(TAG, "addStationToFavorites::stationAddress = " + station.getAddress());
+
+        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+        Log.d(TAG, "addStationToFavorites::" + "favorites_station_was = " + favorites.size());
+        favorites.add(station);
+
+        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
     }
 
     /**

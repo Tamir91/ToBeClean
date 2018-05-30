@@ -137,7 +137,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     //share location
     public void shareLocation(String address) {
-        Log.d(TAG, "shareLocation");
+        Log.d(TAG, "shareStationLocation");
         String link = GOOGLE_MAP_ADDRESS + address;
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -181,7 +181,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //shareLocation(addressTextView.getText().toString());
+                    //shareStationLocation(addressTextView.getText().toString());
                     //tinyDB.clear();
                     tinyDB.remove(CleanConstants.ADDRESS);
 
