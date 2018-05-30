@@ -1,5 +1,6 @@
 package places.mvp;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,6 +21,8 @@ import app.App;
 import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import helpers.CleanConstants;
+import helpers.TinyDB;
 import model.RecyclingContainer;
 import model.RecyclingStation;
 import storage.Preferences;
@@ -39,7 +42,13 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     protected RecyclerView recyclerView;
 
     @Inject
+    Context context;
+
+    @Inject
     RecyclerAdapter adapter;
+
+    @Inject
+    TinyDB tinyDB;
 
     @Inject
     PlacesContract.Presenter presenter;
@@ -92,17 +101,23 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public void showData(ArrayList<RecyclingStation> list) {
         Log.d(TAG, "showData::in");
 
-        RecyclingStation station = new RecyclingStation();
-        station.setAddress(new Preferences(getContext()).getFavoritePlace());
-        list.add(station);
+        ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+        Log.d(TAG, "showData::" + "objects = " + objects.size());
 
-        Log.d(TAG, "showData::address::" + station.getAddress());
-
-        if (list.size() < 4) {
-            adapter.addItems(list);
-        } else {
-           // adapter.addItems(list);
+        for (Object o: objects) {
+            list.add((RecyclingStation) o);
         }
+        Log.d(TAG, "showData::" + "list = " + list.size());
+
+        //RecyclingStation station = new RecyclingStation();
+        //station.setAddress(new Preferences(getContext()).getFavoritePlace());
+
+        //station.setAddress(new TinyDB(context).getString(CleanConstants.ADDRESS));
+
+
+        //Log.d(TAG, "showData::address::" + station.getAddress());
+
+        adapter.addItems(list);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

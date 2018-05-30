@@ -1,6 +1,8 @@
 package model;
 
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
  * This class may contain recycling containers of some types
  */
 public class RecyclingStation {
+    private static final String TAG = RecyclingStation.class.getSimpleName();
 
     //In this app 6 containers the maximum in station. But this not real world.
     private static final int MAX_CONTAINERS_IN_STATION = 4;
@@ -47,9 +50,7 @@ public class RecyclingStation {
         if (containers.size() < MAX_CONTAINERS_IN_STATION) {
             containers.add(container);
 
-            if(address == null){
-                address = container.getContainerAddress();
-            }
+            setAddress(container.getContainerAddress());
             //TODO add checking: container address must be same with s
             return true;
         }
@@ -97,6 +98,9 @@ public class RecyclingStation {
     }
 
     public void setAddress(String address) {
+
+        Log.d(TAG, "setAddress::" + address);
         this.address = address;
+
     }
 }

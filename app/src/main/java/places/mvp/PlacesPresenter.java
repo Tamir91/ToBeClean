@@ -13,10 +13,6 @@ public class PlacesPresenter extends BasePresenter<PlacesContract.View> implemen
 
     private final String TAG = PlacesPresenter.class.getSimpleName();
 
-   /* public void onCreate(PlacesContract.View view) {
-        this.view = view;
-    }*/
-
     @Override
     public void attachView(PlacesContract.View mvpView) {
         super.attachView(mvpView);

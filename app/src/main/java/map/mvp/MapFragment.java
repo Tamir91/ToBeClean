@@ -16,7 +16,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -63,10 +62,10 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import helpers.CleanConstants;
 import helpers.TinyDB;
 import model.RecyclingContainer;
 import model.RecyclingStation;
-import storage.Preferences;
 import tobeclean.tobeclean.R;
 
 
@@ -77,13 +76,6 @@ import tobeclean.tobeclean.R;
 public class MapFragment extends BaseFragment implements MapContract.View, GoogleMap.OnMarkerClickListener, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = MapFragment.class.getSimpleName();
-    public static final Float DEFAULT_ZOOM = 15f;
-
-    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
-    private static final int AUTO_COMP_REQ_CODE = 2;
 
     private static final short GLASS = 0;
     private static final short PLASTIC = 1;
@@ -275,7 +267,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     public void moveCameraToUserLocation(Float zoom) {
         if (map != null && currentLocation != null) {
             LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, CleanConstants.DEFAULT_ZOOM));
 
             Log.d(TAG, "moveCameraToUserLocation::moving camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         }
@@ -398,7 +390,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
                 if (station.getLatLng().equals(marker.getPosition())) {
 
                     Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
-                    addItToFavorites(station.getAddress());
+                    addItToFavorites(station);
                     return true;
                 }
             }
@@ -407,10 +399,14 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         return false;
     }
 
-    private void addItToFavorites(String address) {
-        Log.d(TAG, "addItToFavorites::" + address);
+    private void addItToFavorites(RecyclingStation station) {
+        Log.d(TAG, "addItToFavorites::stationAddress = " + station.getAddress());
 
-        //new Preferences(context).saveFavoritePlace(address);
+        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS,  RecyclingStation.class );
+        Log.d(TAG, "addItToFavorites::" + "favorites_station_was = " + favorites.size());
+        favorites.add(station);
+
+        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
     }
 
     /**
@@ -579,7 +575,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
                 locationManager.removeUpdates(locationListener);
 
                 setUserLocationMarker(place.getLatLng());
-                moveCamera(place.getLatLng(), DEFAULT_ZOOM);
+                moveCamera(place.getLatLng(), CleanConstants.DEFAULT_ZOOM);
                /* // Format details of the place for display and show it in a TextView.
                 mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(),
                         place.getId(), place.getAddress(), place.getPhoneNumber(),

@@ -71,9 +71,4 @@ public class MapModule implements ActivityModule {
         return new MapModel();
     }
 
-    @MapScope
-    @Provides
-    public TinyDB provideTinyDB(Context context) {
-        return new TinyDB(context);
-    }
 }
