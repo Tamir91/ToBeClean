@@ -27,6 +27,8 @@ public interface MapContract {
         boolean showSoftKeyboard();
 
         void showStationMenu();
+
+        float calculateDistanceToStation();
     }
 
     interface Presenter extends MvpPresenter<View> {

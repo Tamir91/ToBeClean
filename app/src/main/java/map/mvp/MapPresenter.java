@@ -70,5 +70,6 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
     @Override
     public void onStationClick() {
         getView().showStationMenu();
+        getView().calculateDistanceToStation();
     }
 }

@@ -58,29 +58,45 @@
         android:background="@drawable/white_border"
         android:visibility="gone">
 
-
         <LinearLayout
             android:layout_width="wrap_content"
+            android:background="@drawable/white_border"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/ibAddToFavorites"
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/transparentBlack"
+                android:textSize="20sp" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/white_border"
-                android:contentDescription="@string/yellowstar"
-                android:src="@mipmap/ic_star" />
+                android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/ibShare"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/white_border"
-                android:contentDescription="@string/yellowshare"
-                android:src="@mipmap/ic_share_yellow" />
+                <ImageButton
+                    android:id="@+id/ibAddToFavorites"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/white_border"
+                    android:contentDescription="@string/yellowstar"
+                    android:src="@mipmap/ic_star" />
+
+                <ImageButton
+                    android:id="@+id/ibShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/white_border"
+                    android:contentDescription="@string/yellowshare"
+                    android:src="@mipmap/ic_share_yellow" />
+
+            </LinearLayout>
 
         </LinearLayout>
+
 
     </RelativeLayout>
 

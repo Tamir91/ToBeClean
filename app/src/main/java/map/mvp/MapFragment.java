@@ -32,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -324,8 +325,14 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         }
     }
 
+    /**
+     * Show station menu with buttons and texts
+     */
     @Override
     public void showStationMenu() {
+        TextView distanceField = rlShareOrSave.findViewById(R.id.tvDistance);
+        distanceField.setText(String.valueOf(calculateDistanceToStation()) + "from you");
+
         rlShareOrSave.setVisibility(View.VISIBLE);
     }
 
@@ -404,6 +411,29 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         }
     }
 
+    /**
+     * Calculate distance between user and clicked station
+     *
+     * @return float
+     */
+    @Override
+    public float calculateDistanceToStation() {
+        float[] results = new float[10];
+
+        if (currentLocation == null) {
+            Log.e(TAG, "calculateDistanceToStation::currentLocation == null");
+            return 0;
+        }
+
+        Location.distanceBetween(
+                currentLocation.getLatitude(), currentLocation.getLongitude(),
+                clickedStation.getLatLng().latitude, clickedStation.getLatLng().longitude,
+                results);
+
+        Log.d(TAG, "calculateDistanceToStation::distance::" + results[0]);
+        return results[0];
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
 
@@ -415,26 +445,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
                 clickedStation = station;
                 presenter.onStationClick();
 
-                //addStationToFavorites(station);
                 return true;
             }
         }
         return false;
     }
-
-//    private void addStationToFavorites(RecyclingStation station) {
-//        if (isStationInFavorites(station)) {
-//            return;
-//        }
-//
-//        Log.d(TAG, "addStationToFavorites::stationAddress = " + station.getAddress());
-//
-//        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
-//        Log.d(TAG, "addStationToFavorites::" + "favorites_station_was = " + favorites.size());
-//        favorites.add(station);
-//
-//        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
-//    }
 
     /**
      * This function check if station in favorite list of station
@@ -520,8 +535,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         presenter.onFoundUserLocationPressed();
     }
 
-
-
     /**
      * Sharing location via other app.
      *
@@ -547,8 +560,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         Log.d(TAG, "shareStationLocation::success");
         context.startActivity(new_intent);
     }
-
-
 
     /**
      * Adding station to favorite list
