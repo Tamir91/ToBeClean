@@ -3,33 +3,25 @@ package tobeclean.tobeclean;
 import android.Manifest;
 import android.app.Dialog;
 
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.location.LocationListener;
-import android.location.LocationManager;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.FrameLayout;
+import android.view.Surface;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 
 import javax.inject.Inject;
 
-import app.App;
 import butterknife.ButterKnife;
 import helpers.RuntimePermissionHelper;
-import map.mvp.MapFragment;
 import storage.Preferences;
 
 
@@ -37,11 +29,6 @@ public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
-
-    //views
-    private MapFragment mMapFragment = new MapFragment();
-
-    //vars
 
     private RuntimePermissionHelper runtimePermissionHelper;
 
@@ -61,10 +48,98 @@ public class MainActivity extends BaseActivity {
     }
 
     private void init() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragmentContainer, mMapFragment)
-                .commit();
+
+        switch (getWindowManager().getDefaultDisplay().getRotation()) {
+
+            case Surface.ROTATION_0: {
+                Log.d(TAG, "init::SCREEN_ORIENTATION_PORTRAIT");
+
+                startFragment(R.id.fragPortraitContainer, mapFragment);
+                break;
+            }
+
+            case Surface.ROTATION_90:
+            case Surface.ROTATION_270: {
+                Log.d(TAG, "init::SCREEN_ORIENTATION_LANDSCAPE");
+
+                startFragment(R.id.fragPlacesContainer, placesFragment);
+                startFragment(R.id.fragMapContainer, mapFragment);
+                break;
+            }
+
+            case Surface.ROTATION_180: {
+                Log.d(TAG, "init::SCREEN_ORIENTATION_180");
+                break;
+            }
+
+            default: {
+                Log.d(TAG, "init::Unknown screen orientation");
+            }
+        }
+    }
+
+    //This function did problem on Meizu.
+    private int getScreenOrientation() {
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int orientation;
+        // if the device's natural orientation is portrait:
+        if ((rotation == Surface.ROTATION_0
+                || rotation == Surface.ROTATION_180) && height > width ||
+                (rotation == Surface.ROTATION_90
+                        || rotation == Surface.ROTATION_270) && width > height) {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                default:
+                    Log.e(TAG, "Unknown screen orientation. Defaulting to " +
+                            "portrait.");
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+            }
+        }
+        // if the device's natural orientation is landscape or if the device
+        // is square:
+        else {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                default:
+                    Log.e(TAG, "Unknown screen orientation. Defaulting to " +
+                            "landscape.");
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+            }
+        }
+
+        return orientation;
     }
 
     public boolean isServiceOK() {

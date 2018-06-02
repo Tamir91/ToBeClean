@@ -4,6 +4,7 @@ package map.mvp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.graphics.Bitmap;
@@ -30,6 +31,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -92,6 +95,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @BindView(R.id.map)
     MapView mapView;
 
+    @BindView(R.id.llShareOrSave)
+    RelativeLayout rlShareOrSave;
+
     @Inject
     Context context;
 
@@ -117,7 +123,19 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     private Location currentLocation;
 
     ArrayList<RecyclingStation> stations;
+    RecyclingStation clickedStation;
 
+    @OnClick(R.id.ibShare)
+    public void onClickShareButton() {
+        shareStationLocation(clickedStation);
+        rlShareOrSave.setVisibility(View.GONE);
+    }
+
+    @OnClick(R.id.ibAddToFavorites)
+    public void onClickAddToFavoritesButton() {
+        addStationToFavorites(clickedStation);
+        rlShareOrSave.setVisibility(View.GONE);
+    }
 
     @Nullable
     @Override
@@ -308,6 +326,17 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     }
 
     /**
+     * Show station menu with buttons and texts
+     */
+    @Override
+    public void showStationMenu() {
+        TextView distanceField = rlShareOrSave.findViewById(R.id.tvDistance);
+        distanceField.setText(String.valueOf(calculateDistanceToStation()) + "from you");
+
+        rlShareOrSave.setVisibility(View.VISIBLE);
+    }
+
+    /**
      * This function work with AsyncTask class
      */
     public void getLocationFromAddress(final String strAddress) {
@@ -382,31 +411,64 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         }
     }
 
+    /**
+     * Calculate distance between user and clicked station
+     *
+     * @return float
+     */
+    @Override
+    public float calculateDistanceToStation() {
+        float[] results = new float[10];
+
+        if (currentLocation == null) {
+            Log.e(TAG, "calculateDistanceToStation::currentLocation == null");
+            return 0;
+        }
+
+        Location.distanceBetween(
+                currentLocation.getLatitude(), currentLocation.getLongitude(),
+                clickedStation.getLatLng().latitude, clickedStation.getLatLng().longitude,
+                results);
+
+        Log.d(TAG, "calculateDistanceToStation::distance::" + results[0]);
+        return results[0];
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.getSnippet().equals("tag")) {
 
-            for (RecyclingStation station : stations) {
-                if (station.getLatLng().equals(marker.getPosition())) {
+        for (RecyclingStation station : stations) {//find station that was clicked(marker).
 
-                    Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
-                    addItToFavorites(station);
-                    return true;
-                }
+            if (station.getLatLng().equals(marker.getPosition())) {
+
+                Toast.makeText(context, "" + station.getNumberContainersInStation(), Toast.LENGTH_SHORT).show();
+                clickedStation = station;
+                presenter.onStationClick();
+
+                return true;
             }
-
         }
         return false;
     }
 
-    private void addItToFavorites(RecyclingStation station) {
-        Log.d(TAG, "addItToFavorites::stationAddress = " + station.getAddress());
+    /**
+     * This function check if station in favorite list of station
+     *
+     * @param station {@link RecyclingStation}
+     * @return boolean
+     */
+    public boolean isStationInFavorites(RecyclingStation station) {
+        ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
 
-        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS,  RecyclingStation.class );
-        Log.d(TAG, "addItToFavorites::" + "favorites_station_was = " + favorites.size());
-        favorites.add(station);
+        for (Object obj : objects) {
 
-        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
+            if (((RecyclingStation) obj).getAddress().equals(station.getAddress())) {
+                Log.d(TAG, "isStationInFavorites::station_in_favorites_already");
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**
@@ -471,6 +533,51 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         //addCustomMarker();
 
         presenter.onFoundUserLocationPressed();
+    }
+
+    /**
+     * Sharing location via other app.
+     *
+     * @param station {@link RecyclingStation}
+     */
+    public void shareStationLocation(RecyclingStation station) {
+        if (station == null) {
+            Log.e(TAG, "shareStationLocation::station is null");
+            return;
+        }
+        String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
+        String link = GOOGLE_MAP_ADDRESS + station.getAddress();
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+
+        Intent new_intent = Intent.createChooser(shareIntent, "Share via");
+        new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        Log.d(TAG, "shareStationLocation::success");
+        context.startActivity(new_intent);
+    }
+
+    /**
+     * Adding station to favorite list
+     *
+     * @param station {@link RecyclingStation}
+     */
+    private void addStationToFavorites(RecyclingStation station) {
+        if (isStationInFavorites(station)) {
+            return;
+        }
+
+        Log.d(TAG, "addStationToFavorites::stationAddress = " + station.getAddress());
+
+        ArrayList<Object> favorites = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+        Log.d(TAG, "addStationToFavorites::" + "favorites_station_was = " + favorites.size());
+        favorites.add(station);
+
+        tinyDB.putListObject(CleanConstants.ADDRESS, favorites);
     }
 
     /**

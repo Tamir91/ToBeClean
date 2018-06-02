@@ -17,5 +17,7 @@
     <string name="plasticsrecyclingicon" translatable="false">plasticsRecyclingIcon</string>
     <string name="paperrecyclingicon" translatable="false">PaperRecyclingIcon</string>
     <string name="boxrecyclingicon" translatable="false">boxRecyclingIcon</string>
+    <string name="yellowstar">YellowStar</string>
+    <string name="yellowshare">yellowShare</string>
 
 </resources>

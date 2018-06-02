@@ -67,4 +67,9 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
         getView().moveCameraToUserLocation(DEFAULT_ZOOM);
     }
 
+    @Override
+    public void onStationClick() {
+        getView().showStationMenu();
+        getView().calculateDistanceToStation();
+    }
 }

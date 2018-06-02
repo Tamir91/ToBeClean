@@ -2,14 +2,12 @@ package tobeclean.tobeclean;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,8 +19,12 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import app.App;
+import base.mvp.BaseFragment;
 import butterknife.BindView;
+import map.mvp.MapFragment;
 import places.mvp.PlacesFragment;
 import utils.AppViewModel;
 
@@ -32,8 +34,15 @@ public class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolBar)
     Toolbar toolbar;
 
+    @Inject
+    PlacesFragment placesFragment;
+
+    @Inject
+    MapFragment mapFragment;
+
+
     //Views
-    protected PlacesFragment placesFragment;
+   // protected PlacesFragment placesFragment;
     protected AppViewModel viewModel;
 
     @Override
@@ -66,7 +75,7 @@ public class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.my_places: {
-                startPlacesFragment();
+                startFragment(R.id.fragPortraitContainer, placesFragment);
                 break;
             }
 
@@ -82,24 +91,20 @@ public class BaseActivity extends AppCompatActivity {
 
             case R.id.exit_form_app: {
                 finish();// added by michael- 25.05.18
-
+                //TODO save all relevant data.
             }
 
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void startPlacesFragment() {
-        Log.d(TAG, "startPlacesFragment::in");
 
-        if (placesFragment == null) {
-            placesFragment = new PlacesFragment();
-            Log.d(TAG, "startPlacesFragment::fragment was created");
-        }
+    protected <T extends BaseFragment> void startFragment(int idContainer, T fragment) {
+        Log.d(TAG, "startFragment::" + fragment.getClass().getSimpleName() + "::was replaced");
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, placesFragment)
+                .replace(idContainer, fragment)
                 .commit();
     }
 
