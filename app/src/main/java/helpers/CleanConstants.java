@@ -24,6 +24,8 @@ public final class CleanConstants {
     /**
      * Default Zoom for map.
      */
+
+    public static final String GOOGLE_API_KEY = "AIzaSyC4hAj8LmqsM-3n300DRSb-jERRN_PxMfQ";
     public static final Float DEFAULT_ZOOM = 15f;
     /***/
     public static final String FINE_LOCATION_PERMISSON = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -31,5 +33,11 @@ public final class CleanConstants {
     public static final String COURSE_LOCATION_PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     public static final String ADDRESS = "addressKey";
+
+    public static final String DISTANCE_METRIC_SYSTEM = "distanceMetricKey";
+    public static final String DISTANCE_KILOMETER = "kilometer";
+    public static final String DISTANCE_MILE = "mile";
+
+    public static final String SEARCHING_VALUE = "searching_key";
 
 }

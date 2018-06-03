@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.Surface;
 
 
 import java.util.Locale;
@@ -24,6 +25,8 @@ import javax.inject.Inject;
 import app.App;
 import base.mvp.BaseFragment;
 import butterknife.BindView;
+import helpers.CleanConstants;
+import helpers.TinyDB;
 import map.mvp.MapFragment;
 import places.mvp.PlacesFragment;
 import utils.AppViewModel;
@@ -40,9 +43,12 @@ public class BaseActivity extends AppCompatActivity {
     @Inject
     MapFragment mapFragment;
 
+    @Inject
+    TinyDB tinyDB;
+
 
     //Views
-   // protected PlacesFragment placesFragment;
+    // protected PlacesFragment placesFragment;
     protected AppViewModel viewModel;
 
     @Override
@@ -79,10 +85,6 @@ public class BaseActivity extends AppCompatActivity {
                 break;
             }
 
-            case R.id.add_to_my_places: {
-                Toast.makeText(this, "add_to_my_places_pressed", Toast.LENGTH_SHORT).show();
-                break;
-            }
 
             case R.id.settings: {
                 startLanguageDialog();
@@ -98,6 +100,19 @@ public class BaseActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (getWindowManager().getDefaultDisplay().getRotation() == Surface.ROTATION_90 ||
+                getWindowManager().getDefaultDisplay().getRotation() == Surface.ROTATION_270) {
+            menu.getItem(0).setVisible(false);//hide problem and useless menu item in landscape mode
+        } else {
+            menu.getItem(0).setVisible(true);//make it visible
+        }
+
+        return true;
+    }
 
     protected <T extends BaseFragment> void startFragment(int idContainer, T fragment) {
         Log.d(TAG, "startFragment::" + fragment.getClass().getSimpleName() + "::was replaced");
@@ -108,36 +123,40 @@ public class BaseActivity extends AppCompatActivity {
                 .commit();
     }
 
-     //Create dialog Method.
+    //Create dialog Method.
     // added by Michael- 25.05.18
     protected void startLanguageDialog() {
 
-        final String[] listItems = {"עברית", "English", "Русский"};
+        final String[] listItems = {"עברית", "English", "Русский", "km", "miles"};
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(BaseActivity.this);
         mBuilder.setTitle("Choose Language....");
         mBuilder.setSingleChoiceItems(listItems, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == 0){
+                if (i == 0) {
                     //Hebrew
                     recreate();
                     setLocale("iw");
-                }
-                else if (i == 1){
+                } else if (i == 1) {
                     //English
                     recreate();
                     setLocale("en");
-                }
-                else if (i == 2){
+                } else if (i == 2) {
                     //Russian
                     recreate();
                     setLocale("ru");
+                } else if (i == 3) {
+                    setDistanceMetricSystem(CleanConstants.DISTANCE_KILOMETER);
+
+                } else if (i == 4) {
+                    setDistanceMetricSystem(CleanConstants.DISTANCE_MILE);
                 }
 
                 //dismiss alert dialog when language selected
                 dialogInterface.dismiss();
             }
         });
+
 
         AlertDialog mDialog = mBuilder.create();
         //show alert dialog
@@ -161,12 +180,38 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     //load language saved in shared preferences
-   // added by michael- 25.05.18
-    public void loadLocale(){
+    // added by michael- 25.05.18
+    public void loadLocale() {
         SharedPreferences prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE);
-        String language = prefs.getString("My_Lang","en");
+        String language = prefs.getString("My_Lang", "en");
         setLocale(language);
 
+    }
+
+    /**
+     * Set metric system
+     *
+     * @param value {@link String}
+     */
+    public void setDistanceMetricSystem(String value) {
+        Log.d(TAG, "setDistanceMetricSystem::" + value);
+        tinyDB.putString(CleanConstants.DISTANCE_METRIC_SYSTEM, value);
+    }
+
+    /**
+     * Get metric system
+     *
+     * @return String
+     */
+    public String getDistanceMetricSystem() {
+        String value = tinyDB.getString(CleanConstants.DISTANCE_METRIC_SYSTEM);
+
+        if (value.equals("")) {
+            Log.d(TAG, "getDistanceMetricSystem::" + CleanConstants.DISTANCE_KILOMETER);
+            return CleanConstants.DISTANCE_KILOMETER;
+        }
+        Log.d(TAG, "getDistanceMetricSystem::" + value);
+        return value;
     }
 
 }

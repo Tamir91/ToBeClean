@@ -2,6 +2,7 @@ package adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -16,12 +17,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.okhttp.ResponseBody;
+
 import java.util.ArrayList;
 
 import helpers.CleanConstants;
 import helpers.TinyDB;
+import io.bal.ihsan.streetapi.api.base.CallBack;
+import io.bal.ihsan.streetapi.api.base.StreetView;
 import io.github.mthli.slice.Slice;
 import model.RecyclingStation;
+import retrofit.Response;
+import retrofit.Retrofit;
 import tobeclean.tobeclean.R;
 
 /**
@@ -36,7 +43,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
     private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
-
 
 
     public ArrayList<RecyclingStation> stations;
@@ -126,17 +132,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     }
 
     /**
-     * This method clean list from all items*/
+     * This method clean list from all items
+     */
     public void cleanListItems() {
         stations = new ArrayList<>();
     }
 
     /***/
-    public void deleteItem(View view){
+    public void deleteItem(View view) {
     }
 
     //share location
-    public void shareLocation(String address) {
+    public void shareStationLocation(String address) {
         Log.d(TAG, "shareStationLocation");
         String link = GOOGLE_MAP_ADDRESS + address;
 
@@ -156,6 +163,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         private TextView addressTextView;
         private ImageView imageView;
         private ImageButton shareButton;
+        private StreetView streetView;
 
 
         //Constructor
@@ -174,6 +182,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             this.shareButton = view.findViewById(R.id.imageButton);
 
             addressTextView.setTextColor(Color.BLACK);
+
+            streetView = new StreetView.Builder(CleanConstants.GOOGLE_API_KEY)
+                    .pitch("-0.76")
+                    .heading("80.0")
+                    .size("600x400")
+                    .fov("90")
+                    .build();
         }
 
         //init listeners
@@ -181,8 +196,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //shareStationLocation(addressTextView.getText().toString());
-                    //tinyDB.clear();
+                    shareStationLocation(addressTextView.getText().toString());
                     tinyDB.remove(CleanConstants.ADDRESS);
 
                 }
@@ -193,7 +207,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                 public boolean onLongClick(View v) {
                     //tinyDB.clear();
                     tinyDB.remove(CleanConstants.ADDRESS);
-                    Toast.makeText(context, "ffff", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             });
@@ -207,9 +220,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
 
         void setViews(RecyclingStation station) {
+
+            this.shareButton.setImageResource(R.mipmap.ic_share);
             this.addressTextView.setText(station.getAddress());
             this.imageView.setImageResource(R.mipmap.ic_launcher);
-            this.shareButton.setImageResource(R.mipmap.ic_share);
+
+            streetView.getStreetView(/*station.getLatLng().latitude, station.getLatLng().latitude*/ 41.0421119, 29.0379787, new CallBack() {
+                @Override
+                public void onResponse(Response<ResponseBody> response, Retrofit retrofit, Bitmap bitmap) {
+                    Log.d(TAG, "getStreetView::onResponse");
+                    imageView.setImageBitmap(bitmap);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            });
         }
     }
 }

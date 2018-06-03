@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +66,7 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import helpers.CleanConstants;
 import helpers.TinyDB;
 import model.RecyclingContainer;
@@ -137,6 +139,12 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         rlShareOrSave.setVisibility(View.GONE);
     }
 
+    @OnTextChanged(value = R.id.etSearch, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    void afterSearchTextChanged(Editable editable) {
+        Log.d(TAG, "afterSearchTextChanged::input::" + editable.toString());
+        tinyDB.putString(CleanConstants.SEARCHING_VALUE, editable.toString());
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -152,13 +160,19 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         //attach view to presenter
         presenter.attachView(this);
 
+        setUpSearchView();
+        return view;
+    }
+
+    public void setUpSearchView() {
         //set adapter
         mSearchText.setAdapter(autocompleteAdapter);
 
+        mSearchText.setText(tinyDB.getString(CleanConstants.SEARCHING_VALUE));
+        mSearchText.setSelection(mSearchText.getText().length());
+
         // Register a listener that receives callbacks when a suggestion has been selected
         mSearchText.setOnItemClickListener(mAutocompleteClickListener);
-
-        return view;
     }
 
     @Override
@@ -214,6 +228,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         Log.d(TAG, "OnMapReady: map is ready");
         map = googleMap;
         map.setOnMarkerClickListener(this);
+        map.setBuildingsEnabled(true);
 
         if (isHasPermissions()) {
             //view is ready to work
@@ -311,7 +326,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
             if (stations == null) {
                 stations = new ArrayList<>();
             }
-            stations.add(item);
+
+            //test
 
             setUpIconsInStation(item.getContainers(), view);
             Bitmap bitmap = createBitmapFromView(view);
@@ -331,7 +347,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @Override
     public void showStationMenu() {
         TextView distanceField = rlShareOrSave.findViewById(R.id.tvDistance);
-        distanceField.setText(String.valueOf(calculateDistanceToStation()) + "from you");
+        distanceField.setText(String.valueOf(calculateDistanceToStation()) + "\nfrom you");
 
         rlShareOrSave.setVisibility(View.VISIBLE);
     }
@@ -342,6 +358,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     public void getLocationFromAddress(final String strAddress) {
         new LocationAsyncTask().execute(strAddress);
     }
+
 
 
     /**
@@ -431,7 +448,15 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
                 results);
 
         Log.d(TAG, "calculateDistanceToStation::distance::" + results[0]);
-        return results[0];
+
+        float re = Math.round(results[0]);
+
+        if (tinyDB.getString(CleanConstants.DISTANCE_METRIC_SYSTEM).equals(CleanConstants.DISTANCE_MILE)) {
+            return re / 1000 * 0.62f;//casting to miles
+        } else if (tinyDB.getString(CleanConstants.DISTANCE_METRIC_SYSTEM).equals(CleanConstants.DISTANCE_KILOMETER)) {
+            return re;//casting to kilometers
+        }
+        return 0;
     }
 
     @Override
