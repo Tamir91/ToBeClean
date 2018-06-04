@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity {
             case Surface.ROTATION_0: {
                 Log.d(TAG, "init::SCREEN_ORIENTATION_PORTRAIT");
 
-                startFragment(R.id.fragPortraitContainer, mapFragment);
+                startFragment(R.id.fragPortraitContainer, baseFragmentList.get(0));
                 break;
             }
 
@@ -61,8 +61,8 @@ public class MainActivity extends BaseActivity {
             case Surface.ROTATION_270: {
                 Log.d(TAG, "init::SCREEN_ORIENTATION_LANDSCAPE");
 
-                startFragment(R.id.fragPlacesContainer, placesFragment);
-                startFragment(R.id.fragMapContainer, mapFragment);
+                startFragment(R.id.fragPlacesContainer, baseFragmentList.get(1));
+                startFragment(R.id.fragMapContainer, baseFragmentList.get(0));
                 break;
             }
 

@@ -5,8 +5,12 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.StreetViewPanoramaFragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Singleton;
 
+import base.mvp.BaseFragment;
 import dagger.Module;
 import dagger.Provides;
 import dagger.components.MapComponent;
@@ -54,4 +58,12 @@ public class AppModule {
         return new PlacesFragment();
     }
 
+    @Singleton
+    @Provides
+    public List<BaseFragment> provideFragments(MapFragment mapFragment, PlacesFragment placesFragment) {
+        List<BaseFragment> list = new ArrayList<>();
+        list.add(mapFragment);
+        list.add(placesFragment);
+        return list;
+    }
 }

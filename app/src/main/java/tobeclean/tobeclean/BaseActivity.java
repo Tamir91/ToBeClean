@@ -1,12 +1,11 @@
 package tobeclean.tobeclean;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.location.Location;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -18,9 +17,7 @@ import android.view.MenuItem;
 import android.view.Surface;
 
 
-import com.google.android.gms.maps.StreetViewPanoramaFragment;
-
-import java.util.Locale;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -29,9 +26,8 @@ import base.mvp.BaseFragment;
 import butterknife.BindView;
 import helpers.CleanConstants;
 import helpers.TinyDB;
-import map.mvp.MapFragment;
-import places.mvp.PlacesFragment;
 import utils.AppViewModel;
+import utils.LocaleHelper;
 
 public class BaseActivity extends AppCompatActivity {
     private static final String TAG = BaseActivity.class.getSimpleName();
@@ -40,23 +36,17 @@ public class BaseActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     @Inject
-    PlacesFragment placesFragment;
-
-    @Inject
-    MapFragment mapFragment;
+    List<BaseFragment> baseFragmentList;
 
     @Inject
     TinyDB tinyDB;
 
-
     //Views
-    // protected PlacesFragment placesFragment;
     protected AppViewModel viewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadLocale();
         Log.d(TAG, "onCreate::in");
 
 
@@ -65,6 +55,24 @@ public class BaseActivity extends AppCompatActivity {
 
         //ViewModel
         viewModel = ViewModelProviders.of(this).get(AppViewModel.class);
+
+        if (savedInstanceState != null) {
+           // baseFragmentList.set(0, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
+           // baseFragmentList.set(1, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
+        }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(LocaleHelper.onAttach(base));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //This crash app. Why?
+        //getSupportFragmentManager().putFragment(outState, "map_key", baseFragmentList.get(0));
+        //getSupportFragmentManager().putFragment(outState, "place_key", baseFragmentList.get(1));
     }
 
     @Override
@@ -83,7 +91,7 @@ public class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.my_places: {
-                startFragment(R.id.fragPortraitContainer, placesFragment);
+                startFragment(R.id.fragPortraitContainer, baseFragmentList.get(1));
                 break;
             }
 
@@ -117,12 +125,14 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected <T extends BaseFragment> void startFragment(int idContainer, T fragment) {
-        Log.d(TAG, "startFragment::" + fragment.getClass().getSimpleName() + "::was replaced");
 
         getSupportFragmentManager()
                 .beginTransaction()
+                .addToBackStack(null)
                 .replace(idContainer, fragment)
                 .commit();
+
+        Log.d(TAG, "startFragment::" + fragment.getClass().getSimpleName() + "::was replaced");
     }
 
     //Create dialog Method.
@@ -169,25 +179,7 @@ public class BaseActivity extends AppCompatActivity {
     //Set checked Language from the dialog to default.
     // added by michael- 25.05.18
     private void setLocale(String lang) {
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
-
-        //save data to shared preferences
-        SharedPreferences.Editor editor = getSharedPreferences("Settings", MODE_PRIVATE).edit();
-        editor.putString("My_Lang", lang);
-        editor.apply();
-    }
-
-    //load language saved in shared preferences
-    // added by michael- 25.05.18
-    public void loadLocale() {
-        SharedPreferences prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE);
-        String language = prefs.getString("My_Lang", "en");
-        setLocale(language);
-
+        LocaleHelper.setLocale(this, lang);
     }
 
     /**

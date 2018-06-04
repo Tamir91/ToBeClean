@@ -48,7 +48,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
-import com.google.android.gms.maps.StreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -70,6 +69,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import butterknife.Unbinder;
 import helpers.CleanConstants;
 import helpers.TinyDB;
 import model.RecyclingContainer;
@@ -92,6 +92,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     private static final short BOX = 3;
 
 
+    //ButterKnife
     @BindView(R.id.etSearch)
     AutoCompleteTextView mSearchText;
 
@@ -104,6 +105,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @BindView(R.id.llShareOrSave)
     RelativeLayout rlShareOrSave;
 
+    private Unbinder unbinder = null;
+
+    //DI
     @Inject
     Context context;
 
@@ -128,8 +132,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     private LocationManager locationManager;
     private Location currentLocation;
 
-    ArrayList<RecyclingStation> stations;
-    RecyclingStation clickedStation;
+    private ArrayList<RecyclingStation> stations;
+    private RecyclingStation clickedStation;
+
 
     @OnClick(R.id.ibShare)
     public void onClickShareButton() {
@@ -149,13 +154,20 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         tinyDB.putString(CleanConstants.SEARCHING_VALUE, editable.toString());
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.map_fragment_activity, container, false);
-        ButterKnife.bind(this, view);
-        //getLocationPermission();
+        unbinder = ButterKnife.bind(this, view);
 
         App.getApp(getContext())
                 .getMapComponent()
@@ -196,15 +208,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
-
-        //test
-        StreetViewPanoramaFragment streetViewPanoramaFragment =
-                (StreetViewPanoramaFragment) getActivity().
-                        getFragmentManager().
-                        findFragmentById(R.id.fragStreetView);
-
-        streetViewPanoramaFragment.getStreetViewPanoramaAsync(this);
-
     }
 
     @Override
@@ -212,6 +215,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         super.onStop();
         presenter.onStop();
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -230,10 +238,33 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+
+
+//        try {
+//            Field childFragmentManager = MapFragment.class.getDeclaredField();
+//            childFragmentManager.setAccessible(true);
+//            childFragmentManager.set(this, null);
+//        } catch (NoSuchFieldException e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         presenter.detachView();
         presenter.destroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override
