@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.Surface;
 
 
+import com.google.android.gms.maps.StreetViewPanoramaFragment;
+
 import java.util.Locale;
 
 import javax.inject.Inject;

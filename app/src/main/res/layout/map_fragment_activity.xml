@@ -54,23 +54,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp"
         android:background="@drawable/white_border"
         android:visibility="gone">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:background="@drawable/white_border"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/white_border"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvDistance"
+            <fragment
+                android:id="@+id/fragStreetView"
+                android:name="com.google.android.gms.maps.StreetViewPanoramaFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="@color/transparentBlack"
-                android:textSize="20sp" />
+                android:layout_height="100dp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -92,6 +90,14 @@
                     android:background="@drawable/white_border"
                     android:contentDescription="@string/yellowshare"
                     android:src="@mipmap/ic_share_yellow" />
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/transparentBlack"
+                    android:textSize="20sp" />
 
             </LinearLayout>
 

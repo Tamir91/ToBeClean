@@ -225,7 +225,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             this.addressTextView.setText(station.getAddress());
             this.imageView.setImageResource(R.mipmap.ic_launcher);
 
-            streetView.getStreetView(/*station.getLatLng().latitude, station.getLatLng().latitude*/ 41.0421119, 29.0379787, new CallBack() {
+            streetView.getStreetView(station.getLatLng().latitude, station.getLatLng().latitude, new CallBack() {
                 @Override
                 public void onResponse(Response<ResponseBody> response, Retrofit retrofit, Bitmap bitmap) {
                     Log.d(TAG, "getStreetView::onResponse");

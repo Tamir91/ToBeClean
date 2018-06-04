@@ -46,6 +46,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
+import com.google.android.gms.maps.StreetViewPanorama;
+import com.google.android.gms.maps.StreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -78,7 +81,8 @@ import tobeclean.tobeclean.R;
  * Created by tamir on 05/02/18.
  */
 
-public class MapFragment extends BaseFragment implements MapContract.View, GoogleMap.OnMarkerClickListener, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
+public class MapFragment extends BaseFragment implements MapContract.View, GoogleMap.OnMarkerClickListener, OnMapReadyCallback,
+        GoogleApiClient.OnConnectionFailedListener, OnStreetViewPanoramaReadyCallback {
 
     private static final String TAG = MapFragment.class.getSimpleName();
 
@@ -192,6 +196,15 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
+
+        //test
+        StreetViewPanoramaFragment streetViewPanoramaFragment =
+                (StreetViewPanoramaFragment) getActivity().
+                        getFragmentManager().
+                        findFragmentById(R.id.fragStreetView);
+
+        streetViewPanoramaFragment.getStreetViewPanoramaAsync(this);
+
     }
 
     @Override
@@ -326,8 +339,7 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
             if (stations == null) {
                 stations = new ArrayList<>();
             }
-
-            //test
+            stations.add(item);
 
             setUpIconsInStation(item.getContainers(), view);
             Bitmap bitmap = createBitmapFromView(view);
@@ -351,15 +363,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
         rlShareOrSave.setVisibility(View.VISIBLE);
     }
-
-    /**
-     * This function work with AsyncTask class
-     */
-    public void getLocationFromAddress(final String strAddress) {
-        new LocationAsyncTask().execute(strAddress);
-    }
-
-
 
     /**
      * Make visible icons in view if station contain type of recycling containers.
@@ -651,6 +654,11 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
             Log.d(TAG, "onLocationChanged::onProviderDisabled::" + provider);
         }
     };
+
+    @Override
+    public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
+        streetViewPanorama.setPosition(new LatLng(-33.87365, 151.20689));
+    }
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
