@@ -4,9 +4,7 @@
     <item
         android:id="@+id/my_places"
         android:title="@string/my_places" />
-    <item
-        android:id="@+id/add_to_my_places"
-        android:title="@string/add_to_my_places" />
+
     <item
         android:id="@+id/settings"
         android:title="@string/settings" />

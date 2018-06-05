@@ -4,12 +4,16 @@ package base.mvp;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
+
 import javax.inject.Inject;
+
+import map.mvp.MapFragment;
 
 public abstract class BaseFragment extends Fragment implements MvpView {
 
 
-       // protected abstract MvpPresenter getPresenter;
+    // protected abstract MvpPresenter getPresenter;
 
     @Override
     public void showError(String s) {

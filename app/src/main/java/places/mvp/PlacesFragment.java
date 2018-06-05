@@ -21,6 +21,7 @@ import app.App;
 import base.mvp.BaseFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import helpers.CleanConstants;
 import helpers.TinyDB;
 import model.RecyclingContainer;
@@ -36,11 +37,14 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
     private final String TAG = PlacesFragment.class.getSimpleName();
 
-    ArrayList<RecyclingContainer> recyclingContainers;
 
+    //ButterKnife
     @BindView(R.id.recyclerViewPlaces)
     protected RecyclerView recyclerView;
 
+    private Unbinder unbinder = null;
+
+    //DI
     @Inject
     Context context;
 
@@ -52,10 +56,13 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
 
     @Inject
     PlacesContract.Presenter presenter;
-    //TODO change a type in PlacesModule
 
+
+    //vars
     //Todo Change position with real position
-    int currentPosition;
+    private int currentPosition;
+
+    private ArrayList<RecyclingContainer> recyclingContainers;
 
 
     public PlacesFragment() {
@@ -67,7 +74,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.recycle_view_places, container, false);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
 
         App.getApp(getContext())
                 .getPlacesComponent()
@@ -93,8 +100,15 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         presenter.destroy();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
     /**
      * This function not work for favorite places. TODO Need changes in param and data
+     *
      * @param list ArrayList<RecyclingContainer>
      */
     @Override
@@ -104,7 +118,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
         Log.d(TAG, "showData::" + "objects = " + objects.size());
 
-        for (Object o: objects) {
+        for (Object o : objects) {
             list.add((RecyclingStation) o);
         }
         Log.d(TAG, "showData::" + "list = " + list.size());
@@ -143,8 +157,6 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         this.currentPosition = currentPosition;
         RecyclingContainer recyclingContainer = recyclingContainers.get(currentPosition);
     }
-
-
 
 
 }
