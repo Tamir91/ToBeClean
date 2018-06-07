@@ -13,13 +13,12 @@ import java.util.ArrayList;
 public class RecyclingStation {
     private static final String TAG = RecyclingStation.class.getSimpleName();
 
-    //In this app 6 containers the maximum in station. But this not real world.
-    private static final int MAX_CONTAINERS_IN_STATION = 4;
+    //In this app 6 containers the maximum in station. But it's not real world.
+    private static final int MAX_CONTAINERS_IN_STATION = 6;
     private LatLng latLng;
     private String address;
 
     private ArrayList<RecyclingContainer> containers;
-
 
     /**
      * Empty constructor.
@@ -28,14 +27,13 @@ public class RecyclingStation {
         containers = new ArrayList<>();
     }
 
-
     /**
      * Second constructor.
      *
      * @param list {@link ArrayList<RecyclingContainer>}
      */
     public RecyclingStation(ArrayList<RecyclingContainer> list) {
-        if (containers.size() < MAX_CONTAINERS_IN_STATION) {
+        if (list.size() <= MAX_CONTAINERS_IN_STATION) {
             containers.addAll(list);
         }
     }
@@ -47,16 +45,12 @@ public class RecyclingStation {
      * @return boolean
      */
     public boolean addContainer(RecyclingContainer container) {
-        if (containers.size() < MAX_CONTAINERS_IN_STATION) {
+        if (getFreeSpaceInStation() > 0) {
             containers.add(container);
-
-            setAddress(container.getContainerAddress());
-            //TODO add checking: container address must be same with s
             return true;
         }
         return false;
     }
-
 
     /**
      * Return list of containers.
@@ -98,7 +92,6 @@ public class RecyclingStation {
     }
 
     public void setAddress(String address) {
-
         Log.d(TAG, "setAddress::" + address);
         this.address = address;
 

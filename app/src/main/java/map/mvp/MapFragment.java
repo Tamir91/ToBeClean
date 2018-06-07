@@ -48,7 +48,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
-import com.google.android.gms.maps.StreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -77,6 +76,13 @@ import model.RecyclingContainer;
 import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
+import static helpers.CleanConstants.BOX;
+import static helpers.CleanConstants.CLOTHES;
+import static helpers.CleanConstants.ELECTRICAL;
+import static helpers.CleanConstants.GLASS;
+import static helpers.CleanConstants.PAPER;
+import static helpers.CleanConstants.PLASTIC;
+
 
 /**
  * Created by tamir on 05/02/18.
@@ -86,11 +92,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         GoogleApiClient.OnConnectionFailedListener, OnStreetViewPanoramaReadyCallback {
 
     private static final String TAG = MapFragment.class.getSimpleName();
-
-    private static final short GLASS = 0;
-    private static final short PLASTIC = 1;
-    private static final short PAPER = 2;
-    private static final short BOX = 3;
 
 
     //ButterKnife
@@ -404,6 +405,15 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
             if (container.getType() == BOX) {
                 view.findViewById(R.id.imBox).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == CLOTHES ) {
+
+                view.findViewById(R.id.imClothes).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == ELECTRICAL) {
+                view.findViewById(R.id.imElectrical).setVisibility(View.VISIBLE);
             }
         }
     }

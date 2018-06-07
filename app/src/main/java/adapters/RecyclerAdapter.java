@@ -2,11 +2,9 @@ package adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,22 +14,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.squareup.okhttp.ResponseBody;
 
 import java.util.ArrayList;
 
 import helpers.CleanConstants;
 import helpers.OnItemTouchListener;
 import helpers.TinyDB;
-import io.bal.ihsan.streetapi.api.base.CallBack;
 import io.bal.ihsan.streetapi.api.base.StreetView;
 import io.github.mthli.slice.Slice;
 import model.RecyclingStation;
-import retrofit.Response;
-import retrofit.Retrofit;
 import tobeclean.tobeclean.R;
+
+import static helpers.CleanConstants.GOOGLE_MAP_ADDRESS;
 
 /**
  * This adapter class for Recycler view places
@@ -44,7 +39,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_TOP = 0x01;
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
-    private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
 
 
     private OnItemTouchListener onItemTouchListener;
@@ -153,7 +147,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * Remove station from list
      *
-     * @param item     {@link RecyclingStation}
      * @param position int position
      */
     public void removeItem(int position) {
@@ -173,16 +166,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         notifyItemInserted(position);
     }
 
-    //share location
-    public void shareStationLocation(String address) {
-        Log.d(TAG, "shareStationLocation");
-        String link = GOOGLE_MAP_ADDRESS + address;
+    /**
+     * Share text via...
+     *
+     * @param text String
+     */
+    public void shareText(String text) {
+        Log.d(TAG, "shareText::" + text);
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
         shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text);
 
         Intent new_intent = Intent.createChooser(shareIntent, "Share via");
         new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -231,24 +227,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemTouchListener.onButtonShareClick(v, getLayoutPosition());
-
+                    shareText(stations.get(getLayoutPosition()).getAddress());
                 }
             });
 
             view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    //tinyDB.clear();
                     tinyDB.remove(CleanConstants.ADDRESS);
                     return false;
-                }
-            });
-
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onItemTouchListener.onCardViewTap(v, getLayoutPosition());
                 }
             });
         }

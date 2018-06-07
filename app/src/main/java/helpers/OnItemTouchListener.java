@@ -16,7 +16,7 @@ public interface OnItemTouchListener {
 
 
     /**
-     * Callback invoked when the Button1 of an item is touched
+     * Callback invoked when the Share of an item is touched
      *
      * @param view     the Button touched
      * @param position the index of the item touched in the RecyclerView

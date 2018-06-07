@@ -1,6 +1,7 @@
 package places.mvp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -26,9 +27,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import helpers.CleanConstants;
+import helpers.OnItemTouchListener;
 import helpers.TinyDB;
 import model.RecyclingStation;
 import tobeclean.tobeclean.R;
+
+import static helpers.CleanConstants.GOOGLE_MAP_ADDRESS;
 
 /**
  * Created by tamir on 05/02/18.
@@ -83,6 +87,21 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
+        initListeners();
+
+
+        //attach view to presenter
+        presenter.attachView(this);
+
+        //view is ready to work
+        presenter.viewIsReady();
+
+        return view;
+    }
+
+    /**Init listeners for this fragment*/
+    private void initListeners() {
+        //Swipe Delete in Recycler view
         SwipeableRecyclerViewTouchListener swipeTouchListener =
                 new SwipeableRecyclerViewTouchListener(recyclerView,
                         new SwipeableRecyclerViewTouchListener.SwipeListener() {
@@ -110,7 +129,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
                             @Override
                             public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
                                 for (int position : reverseSortedPositions) {
-                                   Toast.makeText(context, stations.get(position).getAddress() + " deleted", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, stations.get(position).getAddress() + " deleted", Toast.LENGTH_SHORT).show();
 
                                     removeStationFromTinyDB(stations.get(position).getAddress());
                                     stations.remove(position);
@@ -120,17 +139,7 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
                         });
 
         recyclerView.addOnItemTouchListener(swipeTouchListener);
-
-        //attach view to presenter
-        presenter.attachView(this);
-
-        //view is ready to work
-        presenter.viewIsReady();
-
-        return view;
     }
-
-
 
     @Override
     public void onDestroy() {
@@ -144,14 +153,17 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        unbinder.unbind();
+        unbinder.unbind();//Unbind ButterKnife
     }
 
+    /**
+     * Remove favorite station From
+     */
     public void removeStationFromTinyDB(String address) {
         ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
 
         for (Object o : objects) {
-            if (((RecyclingStation) o).getAddress().equals(address)){
+            if (((RecyclingStation) o).getAddress().equals(address)) {
                 objects.remove(o);
                 tinyDB.putListObject(CleanConstants.ADDRESS, objects);
                 Log.d(TAG, "removeStationFromTinyDB::station with address " + address + " was removed from tinyDB");
