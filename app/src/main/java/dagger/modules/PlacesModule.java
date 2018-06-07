@@ -1,6 +1,7 @@
 package dagger.modules;
 
 import android.content.Context;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -9,6 +10,7 @@ import app.dagger.ActivityModule;
 import dagger.Module;
 import dagger.Provides;
 import dagger.scopes.PlacesScope;
+import helpers.OnItemTouchListener;
 import model.RecyclingContainer;
 import model.RecyclingStation;
 import places.mvp.PlacesContract;
@@ -25,7 +27,7 @@ public class PlacesModule implements ActivityModule{
     
     @PlacesScope
     @Provides
-    public ArrayList<RecyclingStation> provideList(RecyclingStation station) {
+    public ArrayList<RecyclingStation> provideList() {
         return new ArrayList<>();
     }
 
@@ -37,7 +39,23 @@ public class PlacesModule implements ActivityModule{
 
     @PlacesScope
     @Provides
-    RecyclerAdapter provideRecyclerAdapter(ArrayList<RecyclingStation> items, Context context) {
-        return new RecyclerAdapter(items, context);
+    public OnItemTouchListener provideOnItemTouchListener() {
+        return new OnItemTouchListener() {
+            @Override
+            public void onCardViewTap(View view, int position) {
+
+            }
+
+            @Override
+            public void onButtonShareClick(View view, int position) {
+
+            }
+        };
+    }
+
+    @PlacesScope
+    @Provides
+    RecyclerAdapter provideRecyclerAdapter(ArrayList<RecyclingStation> items, OnItemTouchListener listener, Context context) {
+        return new RecyclerAdapter(items, listener, context);
     }
 }

@@ -39,8 +39,6 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-
-
         checkAllAppPermissions();
     }
 

@@ -75,6 +75,9 @@ dependencies {
     //Street view
     implementation 'com.github.ihsanbal:StreetView:2.0.0'
 
+    //Swipe SwipeableRecyclerView
+    implementation 'com.github.brnunes:swipeablerecyclerview:1.0.2'
+
 
     implementation 'com.android.support:design:27.1.1'
 }

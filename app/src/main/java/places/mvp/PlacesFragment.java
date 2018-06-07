@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.github.brnunes.swipeablerecyclerview.SwipeableRecyclerViewTouchListener;
 
 import java.util.ArrayList;
 
@@ -24,9 +27,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import helpers.CleanConstants;
 import helpers.TinyDB;
-import model.RecyclingContainer;
 import model.RecyclingStation;
-import storage.Preferences;
 import tobeclean.tobeclean.R;
 
 /**
@@ -57,16 +58,12 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     @Inject
     PlacesContract.Presenter presenter;
 
-
-    //vars
-    //Todo Change position with real position
-    private int currentPosition;
-
-    private ArrayList<RecyclingContainer> recyclingContainers;
+    @Inject
+    public ArrayList<RecyclingStation> stations;
 
 
     public PlacesFragment() {
-        Log.d(TAG, "PlacesFragment was created");
+        Log.d(TAG, TAG + " was created");
     }
 
     @Nullable
@@ -80,16 +77,60 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
                 .getPlacesComponent()
                 .inject(this);
 
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(adapter);
+
+        SwipeableRecyclerViewTouchListener swipeTouchListener =
+                new SwipeableRecyclerViewTouchListener(recyclerView,
+                        new SwipeableRecyclerViewTouchListener.SwipeListener() {
+                            @Override
+                            public boolean canSwipeLeft(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canSwipeRight(int position) {
+                                return true;
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeLeft(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    Toast.makeText(context, stations.get(position).getAddress() + " deleted", Toast.LENGTH_SHORT).show();
+
+                                    removeStationFromTinyDB(stations.get(position).getAddress());
+                                    stations.remove(position);
+                                    adapter.removeItem(position);
+                                }
+                            }
+
+                            @Override
+                            public void onDismissedBySwipeRight(RecyclerView recyclerView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                   Toast.makeText(context, stations.get(position).getAddress() + " deleted", Toast.LENGTH_SHORT).show();
+
+                                    removeStationFromTinyDB(stations.get(position).getAddress());
+                                    stations.remove(position);
+                                    adapter.removeItem(position);
+                                }
+                            }
+                        });
+
+        recyclerView.addOnItemTouchListener(swipeTouchListener);
 
         //attach view to presenter
         presenter.attachView(this);
 
         //view is ready to work
-
         presenter.viewIsReady();
 
         return view;
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -106,6 +147,19 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         unbinder.unbind();
     }
 
+    public void removeStationFromTinyDB(String address) {
+        ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
+
+        for (Object o : objects) {
+            if (((RecyclingStation) o).getAddress().equals(address)){
+                objects.remove(o);
+                tinyDB.putListObject(CleanConstants.ADDRESS, objects);
+                Log.d(TAG, "removeStationFromTinyDB::station with address " + address + " was removed from tinyDB");
+                return;
+            }
+        }
+    }
+
     /**
      * This function not work for favorite places. TODO Need changes in param and data
      *
@@ -114,35 +168,18 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
     @Override
     public void showData(ArrayList<RecyclingStation> list) {
         Log.d(TAG, "showData::in");
+        stations.clear();
+        adapter.cleanListItems();
 
         ArrayList<Object> objects = tinyDB.getListObject(CleanConstants.ADDRESS, RecyclingStation.class);
         Log.d(TAG, "showData::" + "objects = " + objects.size());
 
         for (Object o : objects) {
-            list.add((RecyclingStation) o);
+            stations.add((RecyclingStation) o);
+
         }
-        Log.d(TAG, "showData::" + "list = " + list.size());
-
-        //RecyclingStation station = new RecyclingStation();
-        //station.setAddress(new Preferences(getContext()).getFavoritePlace());
-
-        //station.setAddress(new TinyDB(context).getString(CleanConstants.ADDRESS));
-
-
-        //Log.d(TAG, "showData::address::" + station.getAddress());
-
-        adapter.addItems(list);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                DividerItemDecoration.VERTICAL));
-
-        recyclerView.setAdapter(adapter);
-
-        adapter.notifyItemChanged(currentPosition);
+        Log.d(TAG, "showData::" + "stations = " + stations.size());
+        adapter.addItems(stations);
     }
 
     /**
@@ -153,10 +190,27 @@ public class PlacesFragment extends BaseFragment implements PlacesContract.View 
         //??onDestroy();
     }
 
-    public void setImg(int currentPosition, int imgID) {
-        this.currentPosition = currentPosition;
-        RecyclingContainer recyclingContainer = recyclingContainers.get(currentPosition);
-    }
 
-
+//    @Override
+//    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+//        if (viewHolder instanceof RecyclerAdapter.RecyclerHolder) {
+//            String name = stations.get(viewHolder.getAdapterPosition()).getAddress();
+//
+//            final RecyclingStation deletedStation = stations.get(viewHolder.getAdapterPosition());
+//            final int deleteIndex = viewHolder.getAdapterPosition();
+//
+//            adapter.removeItem(deleteIndex);
+//
+//            Snackbar snackbar = Snackbar.make(getView(), name + " removed from cart!", Snackbar.LENGTH_LONG);
+//            snackbar.setAction("UNDO", new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    adapter.restoreItem(deletedStation, deleteIndex);
+//                }
+//            });
+//
+//            snackbar.setActionTextColor(Color.YELLOW);
+//            snackbar.show();
+//        }
+//    }
 }

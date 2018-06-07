@@ -48,6 +48,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
+import com.google.android.gms.maps.StreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -157,16 +158,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-
-        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.map_fragment_activity, container, false);
+        final View view = inflater.inflate(R.layout.map_fragment, container, false);
         unbinder = ButterKnife.bind(this, view);
 
         App.getApp(getContext())
@@ -185,6 +183,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         mSearchText.setAdapter(autocompleteAdapter);
 
         mSearchText.setText(tinyDB.getString(CleanConstants.SEARCHING_VALUE));
+        //test
+        //mSearchText.dismissDropDown();
+
         mSearchText.setSelection(mSearchText.getText().length());
 
         // Register a listener that receives callbacks when a suggestion has been selected
@@ -204,7 +205,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
             mapView.getMapAsync(this);
 
-            //initListener();
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
@@ -235,23 +235,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     public void onResume() {
         super.onResume();
         presenter.viewIsReady();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-
-//        try {
-//            Field childFragmentManager = MapFragment.class.getDeclaredField();
-//            childFragmentManager.setAccessible(true);
-//            childFragmentManager.set(this, null);
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-
+        //danger function kill my touch)))
+        //mSearchText.dismissDropDown();
     }
 
     @Override
