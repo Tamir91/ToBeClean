@@ -38,6 +38,13 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
 
     }
 
+    @Override
+    public void detachView() {
+        if(getView() != null){
+            getView().stopLocationUpdating();
+        }
+        super.detachView();
+    }
 
     @Override
     public void viewIsReady() {
@@ -54,7 +61,7 @@ public class MapPresenter extends BasePresenter<MapContract.View> implements Map
 
     @Override
     public void onStop() {
-        getView().stopLocationUpdating();
+        //getView().stopLocationUpdating();
     }
 
     @Override

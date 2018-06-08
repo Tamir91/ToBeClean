@@ -2,11 +2,9 @@ package adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,22 +12,21 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.squareup.okhttp.ResponseBody;
 
 import java.util.ArrayList;
 
 import helpers.CleanConstants;
+import helpers.OnItemTouchListener;
 import helpers.TinyDB;
-import io.bal.ihsan.streetapi.api.base.CallBack;
 import io.bal.ihsan.streetapi.api.base.StreetView;
 import io.github.mthli.slice.Slice;
 import model.RecyclingStation;
-import retrofit.Response;
-import retrofit.Retrofit;
 import tobeclean.tobeclean.R;
+
+import static helpers.CleanConstants.GOOGLE_MAP_ADDRESS;
 
 /**
  * This adapter class for Recycler view places
@@ -42,9 +39,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     private static final int VIEW_TYPE_TOP = 0x01;
     private static final int VIEW_TYPE_CENTER = 0x02;
     private static final int VIEW_TYPE_BOTTOM = 0x03;
-    private static final String GOOGLE_MAP_ADDRESS = "https://maps.google.com/?q=";
 
 
+    private OnItemTouchListener onItemTouchListener;
     public ArrayList<RecyclingStation> stations;
     private Context context;
     private TinyDB tinyDB;
@@ -52,26 +49,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     /**
      * Constructor
      */
-    public RecyclerAdapter(ArrayList<RecyclingStation> listItems, Context context) {
+    public RecyclerAdapter(ArrayList<RecyclingStation> listItems, OnItemTouchListener onItemTouchListener, Context context) {
         this.context = context;
         this.stations = listItems;
+        this.onItemTouchListener = onItemTouchListener;
         tinyDB = new TinyDB(context);
-    }
-
-    @Override
-    public int getItemCount() {
-        return stations.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0) {
-            return VIEW_TYPE_TOP;
-        } else if (position == getItemCount() - 1) {
-            return VIEW_TYPE_BOTTOM;
-        } else {
-            return VIEW_TYPE_CENTER;
-        }
     }
 
     @Override
@@ -88,7 +70,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     @Override
     public void onBindViewHolder(final RecyclerHolder holder, int position) {
         RecyclingStation station = stations.get(position);
-        holder.setViews(station);
+
+        holder.imageView.setImageResource(R.mipmap.ic_launcher);
+        holder.addressTextView.setText(station.getAddress());
+
 
         //Slice this 3-rd part library from GitHub. It do nice UI only.
         int viewType = getItemViewType(position);
@@ -121,6 +106,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
         }
     }
 
+    @Override
+    public int getItemCount() {
+        return stations == null ? 0 : stations.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return VIEW_TYPE_TOP;
+        } else if (position == getItemCount() - 1) {
+            return VIEW_TYPE_BOTTOM;
+        } else {
+            return VIEW_TYPE_CENTER;
+        }
+    }
+
     /**
      * This method compare old list items with new list.
      *
@@ -128,7 +129,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
      * @return boolean
      */
     public boolean addItems(ArrayList<RecyclingStation> items) {
-        return stations.addAll(items);
+        if (stations.addAll(items)){
+            notifyDataSetChanged();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -136,42 +141,68 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
      */
     public void cleanListItems() {
         stations = new ArrayList<>();
+        notifyDataSetChanged();
     }
 
-    /***/
-    public void deleteItem(View view) {
+    /**
+     * Remove station from list
+     *
+     * @param position int position
+     */
+    public void removeItem(int position) {
+        stations.remove(position);
+        notifyItemRemoved(position);
+        notifyDataSetChanged();
     }
 
-    //share location
-    public void shareStationLocation(String address) {
-        Log.d(TAG, "shareStationLocation");
-        String link = GOOGLE_MAP_ADDRESS + address;
+    /**
+     * restore station in list
+     *
+     * @param item     {@link RecyclingStation}
+     * @param position int position
+     */
+    public void restoreItem(RecyclingStation item, int position) {
+        stations.add(position, item);
+        notifyItemInserted(position);
+    }
+
+    /**
+     * Share text via...
+     *
+     * @param text String
+     */
+    public void shareText(String text) {
+        Log.d(TAG, "shareText::" + text);
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
         shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, link);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text);
 
         Intent new_intent = Intent.createChooser(shareIntent, "Share via");
         new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(new_intent);
     }
 
-    class RecyclerHolder extends RecyclerView.ViewHolder {
-        private FrameLayout frame;
-        private TextView addressTextView;
-        private ImageView imageView;
-        private ImageButton shareButton;
-        private StreetView streetView;
+
+
+    public class RecyclerHolder extends RecyclerView.ViewHolder {
+        public FrameLayout frame;
+        public TextView addressTextView;
+        public ImageView imageView;
+        public ImageButton shareButton;
+        public StreetView streetView;
+
+        public RelativeLayout viewBackground, viewForeground;
 
 
         //Constructor
-        RecyclerHolder(final View view) {
-            super(view);
+        RecyclerHolder(final View itemView) {
+            super(itemView);
 
-            init(view);
-            initListeners(view);
+            init(itemView);
+            initListeners(itemView);
         }
 
         //init views
@@ -196,16 +227,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    shareStationLocation(addressTextView.getText().toString());
-                    tinyDB.remove(CleanConstants.ADDRESS);
-
+                    shareText(stations.get(getLayoutPosition()).getAddress());
                 }
             });
 
             view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    //tinyDB.clear();
                     tinyDB.remove(CleanConstants.ADDRESS);
                     return false;
                 }
@@ -219,24 +247,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             return frame;
         }
 
-        void setViews(RecyclingStation station) {
 
-            this.shareButton.setImageResource(R.mipmap.ic_share);
-            this.addressTextView.setText(station.getAddress());
-            this.imageView.setImageResource(R.mipmap.ic_launcher);
-
-            streetView.getStreetView(station.getLatLng().latitude, station.getLatLng().latitude, new CallBack() {
-                @Override
-                public void onResponse(Response<ResponseBody> response, Retrofit retrofit, Bitmap bitmap) {
-                    Log.d(TAG, "getStreetView::onResponse");
-                    imageView.setImageBitmap(bitmap);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-            });
-        }
     }
 }

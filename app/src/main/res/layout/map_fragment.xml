@@ -65,7 +65,11 @@
             android:background="@drawable/white_border"
             android:orientation="vertical">
 
-
+            <!--<fragment-->
+                <!--android:name="com.google.android.gms.maps.StreetViewPanoramaFragment"-->
+                <!--android:id="@+id/streetviewpanorama"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="100dp"/>-->
 
             <LinearLayout
                 android:layout_width="wrap_content"

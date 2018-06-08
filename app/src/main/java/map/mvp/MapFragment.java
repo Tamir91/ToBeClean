@@ -76,6 +76,13 @@ import model.RecyclingContainer;
 import model.RecyclingStation;
 import tobeclean.tobeclean.R;
 
+import static helpers.CleanConstants.BOX;
+import static helpers.CleanConstants.CLOTHES;
+import static helpers.CleanConstants.ELECTRICAL;
+import static helpers.CleanConstants.GLASS;
+import static helpers.CleanConstants.PAPER;
+import static helpers.CleanConstants.PLASTIC;
+
 
 /**
  * Created by tamir on 05/02/18.
@@ -85,11 +92,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         GoogleApiClient.OnConnectionFailedListener, OnStreetViewPanoramaReadyCallback {
 
     private static final String TAG = MapFragment.class.getSimpleName();
-
-    private static final short GLASS = 0;
-    private static final short PLASTIC = 1;
-    private static final short PAPER = 2;
-    private static final short BOX = 3;
 
 
     //ButterKnife
@@ -157,16 +159,13 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-
-        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.map_fragment_activity, container, false);
+        final View view = inflater.inflate(R.layout.map_fragment, container, false);
         unbinder = ButterKnife.bind(this, view);
 
         App.getApp(getContext())
@@ -185,6 +184,9 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
         mSearchText.setAdapter(autocompleteAdapter);
 
         mSearchText.setText(tinyDB.getString(CleanConstants.SEARCHING_VALUE));
+        //test
+        //mSearchText.dismissDropDown();
+
         mSearchText.setSelection(mSearchText.getText().length());
 
         // Register a listener that receives callbacks when a suggestion has been selected
@@ -204,7 +206,6 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
             mapView.getMapAsync(this);
 
-            //initListener();
         } else {
             Log.e(TAG, "onMapReady: Error - Map Fragment was null");
         }
@@ -235,23 +236,8 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
     public void onResume() {
         super.onResume();
         presenter.viewIsReady();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-
-//        try {
-//            Field childFragmentManager = MapFragment.class.getDeclaredField();
-//            childFragmentManager.setAccessible(true);
-//            childFragmentManager.set(this, null);
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-
+        //danger function kill my touch)))
+        //mSearchText.dismissDropDown();
     }
 
     @Override
@@ -419,6 +405,15 @@ public class MapFragment extends BaseFragment implements MapContract.View, Googl
 
             if (container.getType() == BOX) {
                 view.findViewById(R.id.imBox).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == CLOTHES ) {
+
+                view.findViewById(R.id.imClothes).setVisibility(View.VISIBLE);
+            }
+
+            if (container.getType() == ELECTRICAL) {
+                view.findViewById(R.id.imElectrical).setVisibility(View.VISIBLE);
             }
         }
     }

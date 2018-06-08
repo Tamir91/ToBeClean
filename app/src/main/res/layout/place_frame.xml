@@ -42,4 +42,22 @@
         android:src="@drawable/icon_box"
         android:visibility="gone" />
 
+    <ImageView
+        android:id="@+id/imClothes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/clothesrecyclingicon"
+        android:padding="3dp"
+        android:src="@drawable/icon_pajama"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/imElectrical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/electricalrecyclingicon"
+        android:padding="3dp"
+        android:src="@drawable/icon_electrical"
+        android:visibility="gone" />
+
 </LinearLayout>

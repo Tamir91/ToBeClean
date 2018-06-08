@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -54,13 +56,34 @@ public class BaseActivity extends AppCompatActivity {
         App.getApp(this).getAppComponent().injectMain(this);
 
         //ViewModel
-        viewModel = ViewModelProviders.of(this).get(AppViewModel.class);
+       // viewModel = ViewModelProviders.of(this).get(AppViewModel.class);
 
         if (savedInstanceState != null) {
-           // baseFragmentList.set(0, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
-           // baseFragmentList.set(1, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
+            // baseFragmentList.set(0, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
+            // baseFragmentList.set(1, (BaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "map_key"));
         }
     }
+
+    @Override
+    public void onBackPressed() {
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        }
+//        else {
+        int fragments = getSupportFragmentManager().getBackStackEntryCount();
+        if (fragments == 1) {
+            finish();
+        } else {
+            if (getFragmentManager().getBackStackEntryCount() > 1) {
+                getFragmentManager().popBackStack();
+            } else {
+                super.onBackPressed();
+            }
+        }
+        //}
+    }
+
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -125,6 +148,12 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected <T extends BaseFragment> void startFragment(int idContainer, T fragment) {
+
+        if(baseFragmentList.size() >= 2){
+            getSupportFragmentManager().beginTransaction().disallowAddToBackStack().commit();
+        }else{
+            //getSupportFragmentManager().beginTransaction().allow().commit();
+        }
 
         getSupportFragmentManager()
                 .beginTransaction()

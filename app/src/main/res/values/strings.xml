@@ -13,11 +13,16 @@
     <string name="permission_message" translatable="false">permission message</string>
     <string name="place_details" translatable="false">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
     <string name="selected_place" translatable="false">Last Selected Place:</string>
-    <string name="glassrecyclingicon" translatable="false">GlassRecyclingIcon</string>
-    <string name="plasticsrecyclingicon" translatable="false">plasticsRecyclingIcon</string>
+
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="yellowstar" translatable="false">YellowStar</string>
+    <string name="yellowshare" translatable="false">yellowShare</string>
+
     <string name="paperrecyclingicon" translatable="false">PaperRecyclingIcon</string>
     <string name="boxrecyclingicon" translatable="false">boxRecyclingIcon</string>
-    <string name="yellowstar">YellowStar</string>
-    <string name="yellowshare">yellowShare</string>
+    <string name="glassrecyclingicon" translatable="false">GlassRecyclingIcon</string>
+    <string name="plasticsrecyclingicon" translatable="false">plasticsRecyclingIcon</string>
+    <string name="clothesrecyclingicon" translatable="false">clothes</string>
+    <string name="electricalrecyclingicon" translatable="false">electrical</string>
 
 </resources>
